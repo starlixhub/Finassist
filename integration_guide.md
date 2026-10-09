@@ -4,9 +4,14 @@ For teammate building UI/UX.
 
 ## Base Setup
 
-- Backend runs at `http://localhost:8000`
-- Interactive API docs auto-generated at `http://localhost:8000/docs` (Swagger) — use this to test endpoints live, see exact schemas
-- CORS enabled for local frontend dev (configured in `main.py`)
+- **Live Render Backend:** `https://finassist-backend.onrender.com`
+- **Live API Base URL:** `https://finassist-backend.onrender.com/api`
+- **Interactive Swagger Docs (Live):** `https://finassist-backend.onrender.com/docs`
+- **Local Dev URL:** `http://localhost:8000` (Docs at `http://localhost:8000/docs`)
+- **CORS Configured For:**
+  - Vercel production frontend: `https://finassist.vercel.app`
+  - Vercel preview deployments: `https://finassist-*.vercel.app` (`allow_origin_regex`)
+  - Local frontend dev: `http://localhost:3000`, `http://localhost:5173`, etc.
 
 ## Contract
 
@@ -28,10 +33,10 @@ Single hardcoded `user_id=1` for hackathon — no login flow needed. Frontend ca
 
 Every AI-backed response includes an `explanation` field (plain text). **Always display this near its number** — that's the core "explainable AI" pitch. A dashboard that hides the explanation in a tooltip undersells the feature to judges.
 
-## Local Dev Checklist
+## Integration & Deployment Checklist
 
-- [ ] Backend running (`uvicorn main:app --reload`)
-- [ ] Frontend `.env` points to `http://localhost:8000/api`
+- [ ] Backend deployed to Render (`https://finassist-backend.onrender.com`)
+- [ ] Frontend `.env` points to `VITE_API_BASE=https://finassist-backend.onrender.com/api` (or `http://localhost:8000/api` for local)
 - [ ] Test one full flow together before demo day: income → upload → dashboard → predict → goal → plan
 - [ ] Agree on loading states — AI explanation call can take 1-3s, frontend needs a spinner/skeleton for that gap
 

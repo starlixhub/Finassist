@@ -1,6 +1,7 @@
 # API Reference — Finassist
 
-Base URL: `http://localhost:8000/api`
+- **Live Render Base URL:** `https://finassist-backend.onrender.com/api` (Interactive Swagger Docs: `https://finassist-backend.onrender.com/docs`)
+- **Local Dev Base URL:** `http://localhost:8000/api` (Local Swagger Docs: `http://localhost:8000/docs`)
 
 All responses JSON. All errors return `{ "error": "message" }` with appropriate status code.
 
