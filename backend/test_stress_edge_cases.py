@@ -256,6 +256,7 @@ def test_secret_leak_check():
         ("GET", "/api/dashboard?user_id=1"),
         ("GET", "/api/predict?user_id=1"),
         ("GET", "/api/savings-plan?user_id=1"),
+        ("GET", "/api/anomaly-spotlight?user_id=1"),
         ("POST", "/api/income", {"user_id": -1, "monthly_income": -100}),
         ("POST", "/api/savings-goal", {"user_id": 1, "target_amount": -50, "target_months": 0}),
         ("POST", "/api/transactions/upload", None),

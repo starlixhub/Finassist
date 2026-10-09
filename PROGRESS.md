@@ -195,3 +195,35 @@ All stress tests implemented and automated via [`backend/test_stress_edge_cases.
 - **User Onboarding Flow:** Always set income (`POST /api/income`) before requesting savings plans (`GET /api/savings-plan`) so the planner calculates feasible surplus targets rather than a deficit.
 - **AI Latency:** In case of OpenRouter rate limits or transient network outages, the backend automatically falls back to rule-based explanations in $< 50$ms without surfacing any 500 errors.
 
+---
+
+## Block 7: Anomaly Spotlight — The Designated Demo "Wow Moment" (Completed)
+
+### 1. Endpoint Confirmed Live
+- **Endpoint:** `GET /anomaly-spotlight?user_id=1` & `GET /api/anomaly-spotlight?user_id=1`
+- **Purpose:** Surfaces the single highest-deviation spending transaction prominently, AI-explained, as a standalone highlight banner/card rather than being buried in a list of transactions.
+- **Contract:**
+  ```json
+  {
+    "transaction": {
+      "id": 19,
+      "user_id": 1,
+      "date": "2026-10-18",
+      "description": "Emergency Laptop Motherboard Repair",
+      "amount": -28500.0,
+      "category": "uncategorized"
+    },
+    "deviation_pct": 6767.5,
+    "explanation": "This ₹28,500 spend on Emergency Laptop Motherboard Repair stands out as it is 6767% above your typical uncategorized baseline (₹415), representing your single largest spending spike."
+  }
+  ```
+
+### 2. Demo-Readiness Verification Against `data/demo.csv`
+- Successfully identifies the planted emergency expenditure: **`Emergency Laptop Motherboard Repair` (₹28,500)**.
+- Category baseline calculated: **₹415.0** (Hardware Store).
+- Deviation percentage: **+6,767.5%**.
+- AI Narrative: Sharp, single-sentence explanation flagging why it stands out and highlighting the spending spike.
+- Empty User Handling: Returns `{"transaction": null, "deviation_pct": 0.0, "explanation": "No expense transactions recorded yet to analyze for spending anomalies."}` without error or crash.
+- Designation: **Official demo "wow moment"** to present to hackathon judges to showcase explainable AI copilot capabilities.
+
+

@@ -18,10 +18,10 @@ for p in [str(project_root), str(backend_dir)]:
         sys.path.insert(0, p)
 
 try:
-    from backend.routers import income, transactions, dashboard, predict, savings
+    from backend.routers import income, transactions, dashboard, predict, savings, anomaly
     from backend.db.database import supabase
 except ImportError:
-    from routers import income, transactions, dashboard, predict, savings
+    from routers import income, transactions, dashboard, predict, savings, anomaly
     from db.database import supabase
 
 app = FastAPI(
@@ -104,6 +104,7 @@ api_router.include_router(transactions.router)
 api_router.include_router(dashboard.router)
 api_router.include_router(predict.router)
 api_router.include_router(savings.router)
+api_router.include_router(anomaly.router)
 
 # Mount both /api and root routes for maximum compatibility
 app.include_router(api_router)
@@ -112,6 +113,7 @@ app.include_router(transactions.router)
 app.include_router(dashboard.router)
 app.include_router(predict.router)
 app.include_router(savings.router)
+app.include_router(anomaly.router)
 
 @app.get("/")
 async def root():

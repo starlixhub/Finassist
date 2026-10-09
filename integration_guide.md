@@ -26,12 +26,13 @@ Single hardcoded `user_id=1` for hackathon — no login flow needed. Frontend ca
 1. On load: call `GET /dashboard?user_id=1` — if income not set, prompt for it first (`POST /income`)
 2. Upload screen: `POST /transactions/upload` (multipart form), show `rows_imported`/`rows_failed` as feedback
 3. Dashboard screen: render `by_category` as chart, show `remaining_balance` prominently
-4. Prediction screen: `GET /predict` — show `explanation` text next to the number, not just the number alone (this is the differentiator, don't bury it)
-5. Goal screen: `POST /savings-goal` then `GET /savings-plan` — render `suggested_cuts` as a list with each `reason` visible
+4. **Anomaly Spotlight ("Demo Wow Moment"):** `GET /anomaly-spotlight?user_id=1` — render as a standalone prominent highlight card banner (e.g. ₹28,500 Motherboard Repair) with the deviation badge (+6,767% above baseline) and AI one-liner explanation
+5. Prediction screen: `GET /predict` — show `explanation` text next to the number, not just the number alone (this is the differentiator, don't bury it)
+6. Goal screen: `POST /savings-goal` then `GET /savings-plan` — render `suggested_cuts` as a list with each `reason` visible
 
 ## Key UX Note
 
-Every AI-backed response includes an `explanation` field (plain text). **Always display this near its number** — that's the core "explainable AI" pitch. A dashboard that hides the explanation in a tooltip undersells the feature to judges.
+Every AI-backed response includes an `explanation` field (plain text). **Always display this near its number** — that's the core "explainable AI" pitch. A dashboard that hides the explanation in a tooltip undersells the feature to judges. In particular, the **Anomaly Spotlight** (`GET /anomaly-spotlight`) is designed to be the judge-facing differentiator highlight showing real AI copilot intelligence.
 
 ## Integration & Deployment Checklist
 

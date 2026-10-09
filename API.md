@@ -104,6 +104,28 @@ Upload CSV, parse + categorize.
 
 ---
 
+## GET /anomaly-spotlight?user_id=1
+
+Surface the single biggest spending anomaly prominently as a standalone AI-explained highlight.
+
+**Response 200**
+```json
+{
+  "transaction": {
+    "id": 19,
+    "user_id": 1,
+    "date": "2026-10-18",
+    "description": "Emergency Laptop Motherboard Repair",
+    "amount": -28500.0,
+    "category": "uncategorized"
+  },
+  "deviation_pct": 6767.5,
+  "explanation": "This ₹28,500 spend on Emergency Laptop Motherboard Repair stands out as it is 6767% above your typical uncategorized baseline (₹415), representing your single largest spending spike."
+}
+```
+
+---
+
 ## Error Codes
 
 | Code | Meaning |

@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from datetime import date, datetime
 
 # --- Income Schemas ---
@@ -67,6 +67,12 @@ class SavingsPlanResponse(BaseModel):
     required_monthly_savings: float
     suggested_cuts: List[SuggestedCut]
     explanation: str
+
+# --- Anomaly Spotlight Schemas ---
+class AnomalySpotlightResponse(BaseModel):
+    transaction: Optional[Dict[str, Any]] = Field(None, description="The anomaly transaction object")
+    deviation_pct: float = Field(0.0, description="Percentage deviation above category average")
+    explanation: str = Field(..., description="Explainable AI narrative for the anomaly")
 
 # --- Error Schema ---
 class ErrorResponse(BaseModel):

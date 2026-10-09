@@ -80,6 +80,17 @@ def fallback_explanation(kind: str = "general", data: Optional[Dict[str, Any]] =
                 f"Trimming ₹{int(gap):,}/month across flexible spending ({cut_cats}) will bridge the gap while protecting fixed essentials like rent."
             )
 
+    elif kind == "anomaly":
+        amount = data.get("amount", 0.0)
+        desc = data.get("description", "transaction")
+        category = data.get("category", "uncategorized")
+        avg = data.get("category_avg", 0.0)
+        dev = data.get("deviation_pct", 0.0)
+        return (
+            f"This ₹{int(abs(amount)):,} spend on {desc} stands out as it is {int(dev)}% above your "
+            f"typical {category} baseline (₹{int(avg):,}), representing your single largest spending spike."
+        )
+
     return "Based on your spending pattern, this recommendation reflects your current balance and category trends."
 
 
@@ -213,6 +224,32 @@ def explain_savings_plan(
     return call_openrouter(prompt, kind="savings_plan", data=fallback_data)
 
 
+def explain_anomaly(
+    amount: float,
+    description: str,
+    category: str,
+    category_avg: float,
+    deviation_pct: float,
+) -> str:
+    """
+    Generate natural-language explanation for spending anomaly.
+    Template per ai_recommendation_logic.md.
+    """
+    prompt = (
+        f"This transaction is unusual: ₹{int(abs(amount)):,} on {description} ({category}), "
+        f"vs typical ₹{int(category_avg):,} for this category (+{int(deviation_pct)}% deviation). "
+        f"In 1 sharp, direct sentence, flag why it stands out."
+    )
+    fallback_data = {
+        "amount": amount,
+        "description": description,
+        "category": category,
+        "category_avg": category_avg,
+        "deviation_pct": deviation_pct,
+    }
+    return call_openrouter(prompt, kind="anomaly", data=fallback_data)
+
+
 def explain(context: Dict[str, Any]) -> str:
     """
     General explain dispatcher based on context kind.
@@ -237,5 +274,13 @@ def explain(context: Dict[str, Any]) -> str:
             suggested_cuts=context.get("suggested_cuts", []),
             feasible=context.get("feasible", True),
             gap=context.get("gap", 0.0),
+        )
+    elif kind == "anomaly":
+        return explain_anomaly(
+            amount=context.get("amount", 0.0),
+            description=context.get("description", ""),
+            category=context.get("category", "uncategorized"),
+            category_avg=context.get("category_avg", 0.0),
+            deviation_pct=context.get("deviation_pct", 0.0),
         )
     return fallback_explanation(kind=kind, data=context)
