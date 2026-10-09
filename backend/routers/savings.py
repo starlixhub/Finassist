@@ -85,7 +85,7 @@ async def create_savings_goal(payload: SavingsGoalRequest):
         logger.error(f"Error creating savings goal for user {payload.user_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to create savings goal: {str(e)}"
+            detail="Failed to create savings goal."
         )
 
 
@@ -131,5 +131,5 @@ async def get_savings_plan(user_id: int = Query(1, description="User ID")):
         logger.error(f"Error generating savings plan for user {user_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to generate savings plan: {str(e)}"
+            detail="Failed to generate savings plan."
         )

@@ -71,5 +71,5 @@ async def get_dashboard(user_id: int = Query(1, description="User ID")):
         logger.error(f"Error generating dashboard for user {user_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to fetch dashboard data: {str(e)}"
+            detail="Failed to fetch dashboard data."
         )

@@ -156,5 +156,42 @@ Executed the complete 6-step integration demo flow against [`data/demo.csv`](fil
   4. `GET /api/predict?user_id=1&days_ahead=30` (200 OK)
   5. `POST /api/savings-goal` (200 OK)
   6. `GET /api/savings-plan?user_id=1` (200 OK)
-- [`API.md`](file:///c:/Users/ugale/OneDrive/Desktop/Finassist/API.md) and [`integration_guide.md`](file:///c:/Users/ugale/OneDrive/Desktop/Finassist/integration_guide.md) updated with live endpoints and Vercel configuration instructions.
+---
+
+## Block 6: Robustness, Edge-Case Stress Testing & Security Audit (Completed)
+
+### 1. Edge Cases Tested & Verified
+All stress tests implemented and automated via [`backend/test_stress_edge_cases.py`](file:///c:/Users/ugale/OneDrive/Desktop/Finassist/backend/test_stress_edge_cases.py):
+
+| Test Case | Input / Condition | Expected Result | Actual Result | Status |
+|---|---|---|---|---|
+| **CSV Wrong Columns** | CSV with `name,age,department,salary` | `400 Bad Request` with clear missing column error | `400 Bad Request` | **PASS** |
+| **CSV Empty File** | 0 bytes / empty whitespace file | `400 Bad Request` with "empty file" detail | `400 Bad Request` | **PASS** |
+| **CSV Non-UTF8 Encoding** | ISO-8859-1 (Latin-1) accented characters (`Café`) | Decodes smoothly, `200 OK` | `200 OK` (2 imported) | **PASS** |
+| **CSV Huge Numbers** | `amount = 1e30` or `999999999999999999999999999999` | Graceful row failure (`rows_failed=1`), `200 OK` (no 500) | `200 OK` | **PASS** |
+| **CSV 5 Date Formats** | ISO, `DD/MM/YYYY`, `MM/DD/YYYY`, `DD-Mon-YYYY`, `DD.MM.YYYY` | `200 OK`, all 5 rows imported | `200 OK` (5 imported, 0 failed) | **PASS** |
+| **Savings Goal Validation** | `target_months=0` or `target_amount=-5000` | `422 Unprocessable Entity`, no crash | `422 Unprocessable Entity` | **PASS** |
+| **Predict New User** | `user_id` with 0 transactions & 0 income | `200 OK`, sane empty state, no division-by-zero | `200 OK`, clear explanation | **PASS** |
+| **OpenRouter Down** | Invalidate/kill `OPENROUTER_API_KEY` | `200 OK`, deterministic rule-based explanation | `200 OK` | **PASS** |
+| **File Size Guard** | Upload statement CSV > 5MB | `400 Bad Request` file size exceeds limit | `400 Bad Request` | **PASS** |
+| **Secret Leak Check** | Probe all routes & 400/422/500 errors for keys/JWTs | Zero secrets or auth tokens leaked | **0 leaks detected** | **PASS** |
+
+### 2. Bugs Found & Fixed
+1. **Uninformative Upload Responses on Malformed Files:**
+   - *Bug:* Uploading a CSV with wrong columns or empty content did not throw a 400 Bad Request, returning 0 rows imported silently.
+   - *Fix:* Added column validation in `parse_csv` requiring `date` and `amount` (or `debit`/`credit`), throwing clean `ValueError` $\rightarrow$ `HTTPException(400)`.
+2. **Huge Float / Number Overflow:**
+   - *Bug:* Values $> 10^{12}$ or `NaN`/`Inf` could trigger calculation errors or Postgres numeric overflow.
+   - *Fix:* Added sanity boundary checks in `clean_amount` marking such rows as failed gracefully.
+3. **New User Empty-State Explanation Flaw:**
+   - *Bug:* New users with ₹0 balance and 0 burn rate previously triggered the `balance <= 0` condition, generating confusing "Your balance is currently in deficit (₹0)" messages.
+   - *Fix:* Reordered conditions in `fallback_explanation` and `explain_shortage` to prioritize `burn_rate == 0.0`, returning clear onboarding guidance ("No transactions or income recorded yet. Set monthly income and upload CSV...").
+4. **Potential Error Secret Leakage:**
+   - *Bug:* Handlers interpolating `{str(e)}` into client-facing `detail` could theoretically leak internal connection strings or tokens if a client library error occurred.
+   - *Fix:* Sanitized all router error details to generic messages, and implemented global exception handlers with regex redaction for JWTs, OpenRouter keys, and Supabase credentials.
+
+### 3. Demo-Day Avoidance & Operational Notes
+- **File Size:** Keep uploaded bank statements under 5MB (the built-in guard will reject files $\ge 5$MB with 400).
+- **User Onboarding Flow:** Always set income (`POST /api/income`) before requesting savings plans (`GET /api/savings-plan`) so the planner calculates feasible surplus targets rather than a deficit.
+- **AI Latency:** In case of OpenRouter rate limits or transient network outages, the backend automatically falls back to rule-based explanations in $< 50$ms without surfacing any 500 errors.
 

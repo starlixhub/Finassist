@@ -1,5 +1,6 @@
 import io
 import re
+import math
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 import pandas as pd
@@ -65,7 +66,12 @@ def parse_date(date_val: Any) -> Optional[str]:
         "%d-%m-%y",
         "%m-%d-%Y",
         "%b %d, %Y",
+        "%B %d, %Y",
         "%d %b %Y",
+        "%d %B %Y",
+        "%d.%m.%Y",
+        "%Y.%m.%d",
+        "%Y%m%d",
     ]
 
     for fmt in date_formats:
@@ -89,11 +95,15 @@ def parse_date(date_val: Any) -> Optional[str]:
 def clean_amount(val: Any) -> Optional[float]:
     """
     Clean currency string, remove symbols (₹, $, Rs, commas), and convert to float.
+    Safely rejects NaNs, infinities, and numbers exceeding reasonable limits (> 1e12).
     """
     if pd.isna(val):
         return None
     if isinstance(val, (int, float)):
-        return float(val)
+        num = float(val)
+        if math.isnan(num) or math.isinf(num) or abs(num) > 1e12:
+            return None
+        return num
 
     val_str = str(val).strip()
     # Check if negative formatted in parentheses e.g. (500)
@@ -109,8 +119,10 @@ def clean_amount(val: Any) -> Optional[float]:
 
     try:
         num = float(cleaned)
+        if math.isnan(num) or math.isinf(num) or abs(num) > 1e12:
+            return None
         return -num if is_paren_negative else num
-    except ValueError:
+    except (ValueError, OverflowError):
         return None
 
 
@@ -130,24 +142,27 @@ def parse_csv(file_bytes: bytes, user_id: int = 1) -> Tuple[List[Dict[str, Any]]
     Returns:
       (valid_rows, rows_failed, categories_found)
     """
-    if not file_bytes:
-        return [], 0, []
+    if not file_bytes or len(file_bytes.strip()) == 0:
+        raise ValueError("Uploaded CSV file is empty.")
 
-    # Read CSV
-    try:
-        df = pd.read_csv(io.BytesIO(file_bytes))
-    except Exception:
-        # If standard read fails, try with alternative encodings
+    # Read CSV with multi-encoding fallback
+    encodings_to_try = ["utf-8", "utf-8-sig", "latin1", "iso-8859-1", "cp1252"]
+    df = None
+    for enc in encodings_to_try:
         try:
-            df = pd.read_csv(io.BytesIO(file_bytes), encoding="latin1")
+            df = pd.read_csv(io.BytesIO(file_bytes), encoding=enc)
+            break
         except Exception:
-            return [], 1, []
+            continue
 
-    if df.empty:
-        return [], 0, []
+    if df is None:
+        raise ValueError("Could not decode CSV file. Please upload a standard UTF-8 or text CSV.")
 
     # Drop rows that are completely empty
     df = df.dropna(how="all")
+
+    if df.empty:
+        raise ValueError("CSV file contains no data rows.")
 
     # Map header variants
     col_map = {_normalize_col_name(c): c for c in df.columns}
@@ -195,6 +210,16 @@ def parse_csv(file_bytes: bytes, user_id: int = 1) -> Tuple[List[Dict[str, Any]]
             if cand in col_map:
                 amount_col = col_map[cand]
                 break
+
+    # Validate that essential columns exist
+    has_amount = bool(amount_col or debit_col or credit_col)
+    if not date_col or not has_amount:
+        missing = []
+        if not date_col:
+            missing.append("date")
+        if not has_amount:
+            missing.append("amount (or debit/credit)")
+        raise ValueError(f"CSV file is missing required columns: {', '.join(missing)}.")
 
     for cand in ["type", "txn_type", "transaction_type", "dr_cr", "drcr"]:
         if cand in col_map:

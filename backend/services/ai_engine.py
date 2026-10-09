@@ -32,7 +32,18 @@ def fallback_explanation(kind: str = "general", data: Optional[Dict[str, Any]] =
         shortage_date = data.get("shortage_date")
         days_ahead = data.get("days_ahead", 30)
 
-        if data.get("shortage_predicted") and shortage_date:
+        if burn_rate == 0.0:
+            if balance > 0:
+                return (
+                    f"No expenses recorded yet. With zero daily burn rate, your balance of ₹{int(balance):,} "
+                    f"is projected to remain stable over the next {days_ahead} days."
+                )
+            else:
+                return (
+                    f"No transactions or income recorded yet. Set your monthly income and upload "
+                    f"a statement CSV to view your cash runway projections."
+                )
+        elif data.get("shortage_predicted") and shortage_date:
             return (
                 f"Based on your average daily spend of ₹{int(burn_rate):,}, your current balance of ₹{int(balance):,} "
                 f"is projected to deplete by {shortage_date}. Trimming discretionary spending will extend your runway."
@@ -135,6 +146,17 @@ def explain_shortage(
             f"User's balance is currently negative (₹{int(current_balance):,}), spending ₹{int(daily_burn_rate):,}/day on average "
             f"(top categories: {categories_str}). In 2 short sentences, explain why immediate action is needed and highlight the top spending drivers. Be direct, no fluff."
         )
+    elif daily_burn_rate == 0.0:
+        if current_balance > 0:
+            prompt = (
+                f"User has ₹{int(current_balance):,} remaining balance with zero recorded daily expenses. "
+                f"In 2 short sentences, explain that their balance is intact with zero daily burn rate."
+            )
+        else:
+            prompt = (
+                f"User is a new user with zero balance and no transactions yet. "
+                f"In 2 short sentences, encourage them to set monthly income and upload transaction statements to view predictions."
+            )
     else:
         prompt = (
             f"User has ₹{int(current_balance):,} remaining, spending ₹{int(daily_burn_rate):,}/day on average "

@@ -55,5 +55,5 @@ async def get_prediction(
         logger.error(f"Error computing prediction for user {user_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to generate prediction: {str(e)}",
+            detail="Failed to generate prediction.",
         )

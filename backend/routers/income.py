@@ -49,5 +49,5 @@ async def set_income(payload: IncomeRequest):
         logger.error(f"Error setting income for user {payload.user_id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Database error setting income: {str(e)}"
+            detail="Database error setting income."
         )
