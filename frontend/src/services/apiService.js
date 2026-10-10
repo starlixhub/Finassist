@@ -169,10 +169,11 @@ class ApiService {
             latency_ms: latencyMs,
           };
         }
-      } catch (directErr) {
-        console.warn('Gemini API call timed out or failed, using instant local model fallback:', directErr);
       }
+    } catch (directErr) {
+      console.warn('Gemini API call timed out or failed, using instant local model fallback:', directErr);
     }
+  }
 
     // Mathematical safe fallback if network latency exceeds 7 seconds
     const activeCurr = context.currency || null;
