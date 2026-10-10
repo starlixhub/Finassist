@@ -81,12 +81,12 @@ async def chat_with_model(req: AIChatRequest):
         or ""
     ).strip()
 
-    selected_model = req.model or "gemini-flash-lite-latest"
-    # Normalize model name if prefixed
+    selected_model = req.model or "gemini-3.8-flash"
+    # Normalize model name if prefixed or outdated
     if "models/" in selected_model:
         selected_model = selected_model.replace("models/", "")
-    elif "/" in selected_model or selected_model == "Finassist AI":
-        selected_model = "gemini-flash-lite-latest"
+    if "/" in selected_model or selected_model in ["Finassist AI", "gemini-flash-lite-latest", "gemini-3.5-flash-lite"]:
+        selected_model = "gemini-3.8-flash"
 
     # Financial context summary string
     ctx = req.context or {}

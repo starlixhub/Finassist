@@ -275,7 +275,7 @@ export default function AICoachPage() {
   };
 
   // --- Gemini Model Selector State ---
-  const [selectedModel, setSelectedModel] = useState('gemini-flash-lite-latest');
+  const [selectedModel, setSelectedModel] = useState('gemini-3.8-flash');
 
   const [thinkingTime, setThinkingTime] = useState(0);
 
@@ -493,17 +493,14 @@ export default function AICoachPage() {
                     boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
                   }}
                 >
-                  <option value="gemini-flash-lite-latest">
-                    Finassist AI Fast (Flash Lite • ~1.5s • Recommended)
-                  </option>
-                  <option value="gemini-3.5-flash-lite">
-                    Finassist AI Balanced (Flash 3.5 Lite • ~2.5s)
-                  </option>
-                  <option value="gemini-3.5-flash">
-                    Finassist AI Pro (Flash 3.5 • ~3s)
-                  </option>
                   <option value="gemini-3.8-flash">
-                    Finassist AI Deep (Gemini 3.8 Flash)
+                    Gemini 3.8 Flash (Deep Reasoning • Recommended)
+                  </option>
+                  <option value="gemini-3.7-flash">
+                    Gemini 3.7 Flash (Hybrid Fast)
+                  </option>
+                  <option value="gemini-3.6-flash">
+                    Gemini 3.6 Flash (Low Latency)
                   </option>
                 </select>
               </div>
