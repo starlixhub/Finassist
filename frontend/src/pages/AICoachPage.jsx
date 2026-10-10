@@ -14,6 +14,13 @@ import {
 import { formatCurrency, categoryLabels } from '../utils/formatters';
 import apiService from '../services/apiService';
 
+const QUICK_PROMPTS = [
+  'How can I save ₹10,000 extra this month?',
+  'Analyze my spending trends for October',
+  'What should I prioritize: Emergency Fund or Laptop?',
+  'Explain the October spending anomaly',
+];
+
 function InsightCard({ icon, title, priority, children, defaultOpen = false }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
