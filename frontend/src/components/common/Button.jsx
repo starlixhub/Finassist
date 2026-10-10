@@ -3,29 +3,46 @@ import React from 'react';
 
 const variants = {
   primary: {
-    background: '#0B6E6E',
-    color: '#fff',
-    border: '1px solid #0B6E6E',
+    background: '#4A9C5D',
+    color: '#FFFFFF',
+    border: '1px solid #3D884E',
+    boxShadow: 'none',
+  },
+  accent: {
+    background: '#4A9C5D',
+    color: '#FFFFFF',
+    border: '1px solid #3D884E',
+    boxShadow: 'none',
   },
   secondary: {
-    background: '#fff',
-    color: '#0F1B2D',
-    border: '1px solid #D9E0E9',
+    background: '#FFFFFF',
+    color: '#2D5A34',
+    border: '1px solid #D3E2D5',
+    boxShadow: 'none',
   },
   danger: {
-    background: '#fff',
-    color: '#B42318',
-    border: '1px solid #B42318',
+    background: '#FFFFFF',
+    color: '#B91C1C',
+    border: '1px solid #FCA5A5',
+    boxShadow: 'none',
   },
   ghost: {
     background: 'transparent',
-    color: '#52607A',
+    color: '#2D5A34',
     border: '1px solid transparent',
+    boxShadow: 'none',
+  },
+  soft: {
+    background: '#E8F0E9',
+    color: '#2D5A34',
+    border: '1px solid #B0CDB4',
+    boxShadow: 'none',
   },
   teal_soft: {
-    background: '#E2F1F0',
-    color: '#0B6E6E',
-    border: '1px solid #E2F1F0',
+    background: '#E8F0E9',
+    color: '#2D5A34',
+    border: '1px solid #B0CDB4',
+    boxShadow: 'none',
   },
 };
 
@@ -45,9 +62,9 @@ export default function Button({
   const v = variants[variant] || variants.primary;
 
   const sizeStyles = {
-    sm: { padding: '6px 12px', fontSize: '12px', borderRadius: '5px' },
-    md: { padding: '8px 16px', fontSize: '13px', borderRadius: '6px' },
-    lg: { padding: '11px 22px', fontSize: '14px', borderRadius: '7px' },
+    sm: { padding: '6px 12px', fontSize: '12px', borderRadius: '6px', minHeight: '30px' },
+    md: { padding: '9px 16px', fontSize: '13px', borderRadius: '8px', minHeight: '36px' },
+    lg: { padding: '12px 22px', fontSize: '14px', borderRadius: '10px', minHeight: '42px' },
   };
 
   const sz = sizeStyles[size] || sizeStyles.md;
@@ -66,19 +83,29 @@ export default function Button({
         opacity: disabled || loading ? 0.6 : 1,
         display: 'inline-flex',
         alignItems: 'center',
-        gap: 6,
+        gap: 8,
         width: fullWidth ? '100%' : 'auto',
         justifyContent: 'center',
-        transition: 'opacity 0.15s, box-shadow 0.15s',
+        transition: 'background 0.15s ease, opacity 0.15s ease, transform 0.05s ease',
         lineHeight: 1,
         whiteSpace: 'nowrap',
+        letterSpacing: '-0.01em',
         ...extraStyle,
       }}
+      onMouseDown={e => {
+        if (!disabled && !loading) e.currentTarget.style.transform = 'scale(0.985)';
+      }}
+      onMouseUp={e => {
+        if (!disabled && !loading) e.currentTarget.style.transform = 'scale(1)';
+      }}
       onMouseEnter={e => {
-        if (!disabled && !loading) e.currentTarget.style.opacity = '0.85';
+        if (!disabled && !loading) e.currentTarget.style.opacity = '0.9';
       }}
       onMouseLeave={e => {
-        if (!disabled && !loading) e.currentTarget.style.opacity = '1';
+        if (!disabled && !loading) {
+          e.currentTarget.style.opacity = '1';
+          e.currentTarget.style.transform = 'scale(1)';
+        }
       }}
       {...props}
     >

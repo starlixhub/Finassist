@@ -2,6 +2,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastProvider } from './components/common/Toast';
+import { CurrencyProvider } from './context/CurrencyContext';
 import { isAuthenticated, getUser } from './data/mockData';
 
 // Layout
@@ -51,74 +52,76 @@ function PublicRoute({ children }) {
 export default function App() {
   return (
     <ToastProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* Public Auth Routes */}
-          <Route
-            path="/login"
-            element={
-              <PublicRoute>
-                <LoginPage />
-              </PublicRoute>
-            }
-          />
-          <Route
-            path="/register"
-            element={
-              <PublicRoute>
-                <RegisterPage />
-              </PublicRoute>
-            }
-          />
+      <CurrencyProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Public Auth Routes */}
+            <Route
+              path="/login"
+              element={
+                <PublicRoute>
+                  <LoginPage />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <PublicRoute>
+                  <RegisterPage />
+                </PublicRoute>
+              }
+            />
 
-          {/* First-Time Guided Onboarding */}
-          <Route
-            path="/onboarding"
-            element={
-              <ProtectedRoute allowIncompleteOnboarding={true}>
-                <OnboardingPage />
-              </ProtectedRoute>
-            }
-          />
+            {/* First-Time Guided Onboarding */}
+            <Route
+              path="/onboarding"
+              element={
+                <ProtectedRoute allowIncompleteOnboarding={true}>
+                  <OnboardingPage />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Core Application Shell with 7 Primary Destinations */}
-          <Route
-            element={
-              <ProtectedRoute>
-                <AppShell />
-              </ProtectedRoute>
-            }
-          >
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/transactions" element={<TransactionsPage />} />
-            <Route path="/ai-coach" element={<AICoachPage />} />
-            <Route path="/savings" element={<SavingsGoalsPage />} />
-            <Route path="/budgets" element={<BudgetsPage />} />
-            <Route path="/reports" element={<ReportsPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-          </Route>
+            {/* Core Application Shell with 7 Primary Destinations */}
+            <Route
+              element={
+                <ProtectedRoute>
+                  <AppShell />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/transactions" element={<TransactionsPage />} />
+              <Route path="/ai-coach" element={<AICoachPage />} />
+              <Route path="/savings" element={<SavingsGoalsPage />} />
+              <Route path="/budgets" element={<BudgetsPage />} />
+              <Route path="/reports" element={<ReportsPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+            </Route>
 
-          {/* Root Redirect */}
-          <Route
-            path="/"
-            element={
-              <Navigate
-                to={
-                  isAuthenticated()
-                    ? getUser()?.onboardingComplete
-                      ? '/dashboard'
-                      : '/onboarding'
-                    : '/login'
-                }
-                replace
-              />
-            }
-          />
+            {/* Root Redirect */}
+            <Route
+              path="/"
+              element={
+                <Navigate
+                  to={
+                    isAuthenticated()
+                      ? getUser()?.onboardingComplete
+                        ? '/dashboard'
+                        : '/onboarding'
+                      : '/login'
+                  }
+                  replace
+                />
+              }
+            />
 
-          {/* Catch-all Fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
+            {/* Catch-all Fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </CurrencyProvider>
     </ToastProvider>
   );
 }

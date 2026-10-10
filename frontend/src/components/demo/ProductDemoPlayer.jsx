@@ -5,6 +5,7 @@ import {
   Target, ChevronRight, LayoutDashboard, ArrowLeftRight,
   BrainCircuit, PieChart, Sparkles, CheckCircle2, Shield
 } from 'lucide-react';
+import { formatCurrency, formatCurrencySigned } from '../../utils/formatters';
 
 const DURATION_SECONDS = 20;
 
@@ -97,7 +98,7 @@ export default function ProductDemoPlayer() {
       {/* Subtle ambient light bar at top */}
       <div style={{
         height: 3,
-        background: 'linear-gradient(90deg, #0D7776, #0F9690, #10B981, #0D7776)',
+        background: 'linear-gradient(90deg, #4D7C0F, #65A30D, #15803D, #4D7C0F)',
         backgroundSize: '200% 100%',
         animation: 'shimmerBorder 4s linear infinite',
       }} />
@@ -116,7 +117,7 @@ export default function ProductDemoPlayer() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#EF4444' }} />
             <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#F59E0B' }} />
-            <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#10B981' }} />
+            <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#15803D' }} />
           </div>
 
           <div style={{
@@ -131,7 +132,7 @@ export default function ProductDemoPlayer() {
             gap: 6,
             fontFamily: 'monospace',
           }}>
-            <span style={{ color: '#0F9690' }}>https://</span>app.finassist.in/dashboard
+            <span style={{ color: '#65A30D' }}>https://</span>app.finassist.in/dashboard
           </div>
         </div>
 
@@ -140,7 +141,7 @@ export default function ProductDemoPlayer() {
           <div style={{
             fontSize: 10,
             fontWeight: 700,
-            color: '#10B981',
+            color: '#15803D',
             background: 'rgba(16,185,129,0.12)',
             border: '1px solid rgba(16,185,129,0.3)',
             padding: '2px 8px',
@@ -154,8 +155,8 @@ export default function ProductDemoPlayer() {
               width: 6,
               height: 6,
               borderRadius: '50%',
-              background: '#10B981',
-              boxShadow: '0 0 8px #10B981',
+              background: '#15803D',
+              boxShadow: '0 0 8px #15803D',
               animation: 'pulse 1.5s infinite',
             }} />
             LIVE SIMULATION
@@ -164,7 +165,7 @@ export default function ProductDemoPlayer() {
           <span style={{
             fontSize: 10,
             fontWeight: 700,
-            color: '#0F9690',
+            color: '#65A30D',
             background: 'rgba(15,150,144,0.15)',
             padding: '2px 8px',
             borderRadius: 4,
@@ -198,7 +199,7 @@ export default function ProductDemoPlayer() {
           {/* Logo badge */}
           <div style={{
             width: 30, height: 30, borderRadius: 8,
-            background: '#0D7776', color: '#fff',
+            background: '#4D7C0F', color: '#fff',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 15, fontWeight: 900,
             boxShadow: '0 2px 8px rgba(13,119,118,0.4)',
@@ -223,8 +224,8 @@ export default function ProductDemoPlayer() {
                     width: 34, height: 34, borderRadius: 8,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     background: isActive ? 'rgba(13,119,118,0.35)' : 'transparent',
-                    color: isActive ? '#0F9690' : 'rgba(255,255,255,0.45)',
-                    borderLeft: isActive ? '2px solid #0F9690' : '2px solid transparent',
+                    color: isActive ? '#65A30D' : 'rgba(255,255,255,0.45)',
+                    borderLeft: isActive ? '2px solid #65A30D' : '2px solid transparent',
                     transition: 'all 0.25s ease',
                   }}
                 >
@@ -234,7 +235,7 @@ export default function ProductDemoPlayer() {
             })}
           </div>
 
-          <div style={{ marginTop: 'auto', width: 26, height: 26, borderRadius: '50%', background: '#0D7776', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700 }}>
+          <div style={{ marginTop: 'auto', width: 26, height: 26, borderRadius: '50%', background: '#4D7C0F', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700 }}>
             KS
           </div>
         </div>
@@ -266,7 +267,7 @@ export default function ProductDemoPlayer() {
               background: '#FFFFFF', border: '1px solid #DCE4EC',
               borderRadius: 20, padding: '3px 10px', fontSize: 11, color: '#17243A', fontWeight: 600,
             }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#0D7776' }} />
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4D7C0F' }} />
               Statement Verified
             </div>
           </div>
@@ -274,9 +275,9 @@ export default function ProductDemoPlayer() {
           {/* 4 KPI METRIC CARDS (Always visible with animated accent border) */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
             {[
-              { label: 'Monthly Income', val: '₹75,000', sub: 'Fixed Salary', up: true, badge: '+100%', key: 'inc' },
-              { label: 'Total Expenses', val: '₹63,530', sub: 'Spike Month', up: false, badge: 'High', key: 'exp' },
-              { label: 'Net Cash Flow', val: '+₹11,470', sub: 'Healthy Surplus', up: true, badge: 'Surplus', key: 'net' },
+              { label: 'Monthly Income', val: formatCurrency(75000), sub: 'Fixed Salary', up: true, badge: '+100%', key: 'inc' },
+              { label: 'Total Expenses', val: formatCurrency(63530), sub: 'Spike Month', up: false, badge: 'High', key: 'exp' },
+              { label: 'Net Cash Flow', val: formatCurrencySigned(11470), sub: 'Healthy Surplus', up: true, badge: 'Surplus', key: 'net' },
               { label: 'Savings Rate', val: '15.3%', sub: 'Target: 20%', up: true, badge: 'On Track', key: 'sav' },
             ].map((m) => {
               const isCardActive = activeChapter.id === 'overview' && (m.key === 'net' || m.key === 'exp');
@@ -288,7 +289,7 @@ export default function ProductDemoPlayer() {
                     borderRadius: 8,
                     padding: '9px 11px',
                     border: '1px solid #DCE4EC',
-                    borderTop: isCardActive ? '3px solid #0D7776' : '3px solid #E2E8F0',
+                    borderTop: isCardActive ? '3px solid #4D7C0F' : '3px solid #E2E8F0',
                     boxShadow: isCardActive
                       ? '0 8px 18px rgba(13,119,118,0.15)'
                       : '0 1px 3px rgba(16,28,46,0.03)',
@@ -332,7 +333,7 @@ export default function ProductDemoPlayer() {
                     <span style={{ fontSize: 11, fontWeight: 700, color: '#17243A' }}>
                       Cash Flow Comparison (3 Months)
                     </span>
-                    <span style={{ fontSize: 9, fontWeight: 600, color: '#0D7776', background: '#E6F5F4', padding: '1px 6px', borderRadius: 4 }}>
+                    <span style={{ fontSize: 9, fontWeight: 600, color: '#4D7C0F', background: '#F7FEE7', padding: '1px 6px', borderRadius: 4 }}>
                       Monthly Burn Model
                     </span>
                   </div>
@@ -343,9 +344,9 @@ export default function ProductDemoPlayer() {
                     paddingTop: 10, borderBottom: '1px dashed #DCE4EC'
                   }}>
                     {[
-                      { month: 'Aug', inc: 88, exp: 34, incVal: '₹75,000', expVal: '₹28,250' },
-                      { month: 'Sep', inc: 88, exp: 35, incVal: '₹75,000', expVal: '₹29,050' },
-                      { month: 'Oct (Spike)', inc: 88, exp: 78, incVal: '₹75,000', expVal: '₹63,530', isAnomaly: true },
+                      { month: 'Aug', inc: 88, exp: 34, incVal: formatCurrency(75000), expVal: formatCurrency(28250) },
+                      { month: 'Sep', inc: 88, exp: 35, incVal: formatCurrency(75000), expVal: formatCurrency(29050) },
+                      { month: 'Oct (Spike)', inc: 88, exp: 78, incVal: formatCurrency(75000), expVal: formatCurrency(63530), isAnomaly: true },
                     ].map((b) => (
                       <div key={b.month} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 5, height: 115, position: 'relative' }}>
@@ -356,16 +357,15 @@ export default function ProductDemoPlayer() {
                               background: '#101C2E', color: '#fff', fontSize: 9, fontWeight: 700,
                               padding: '2px 6px', borderRadius: 4, whiteSpace: 'nowrap',
                               boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
-                              animation: 'bounceSlow 2s infinite',
                             }}>
-                              ₹63.5k (+Hardware Spike)
+                              {formatCurrency(63530)} (+Hardware Spike)
                             </div>
                           )}
 
                           {/* Income Bar */}
                           <div style={{
                             width: 20, height: `${b.inc}%`,
-                            background: 'linear-gradient(180deg, #0F9690 0%, #0D7776 100%)',
+                            background: 'linear-gradient(180deg, #65A30D 0%, #4D7C0F 100%)',
                             borderRadius: '4px 4px 0 0',
                             boxShadow: '0 2px 6px rgba(13,119,118,0.2)',
                             transition: 'height 0.6s ease',
@@ -389,7 +389,7 @@ export default function ProductDemoPlayer() {
 
                   <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 8 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#65738A' }}>
-                      <div style={{ width: 8, height: 8, borderRadius: 2, background: '#0D7776' }} /> Income
+                      <div style={{ width: 8, height: 8, borderRadius: 2, background: '#4D7C0F' }} /> Income
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#65738A' }}>
                       <div style={{ width: 8, height: 8, borderRadius: 2, background: '#B42318' }} /> Expenses
@@ -407,11 +407,11 @@ export default function ProductDemoPlayer() {
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                     {[
-                      { name: 'Rent (Fixed)', amt: '₹15,000', pct: 24, color: '#0D7776' },
-                      { name: 'Shopping (Discretionary)', amt: '₹7,500', pct: 12, color: '#8B5CF6' },
-                      { name: 'Transport (Transit/Fuel)', amt: '₹3,370', pct: 5, color: '#3B82F6' },
-                      { name: 'Utilities (MSEB/Bills)', amt: '₹3,068', pct: 5, color: '#6B7280' },
-                      { name: 'Food & Dining (Swiggy)', amt: '₹2,990', pct: 5, color: '#F59E0B' },
+                      { name: 'Rent (Fixed)', amt: formatCurrency(15000), pct: 24, color: '#4D7C0F' },
+                      { name: 'Shopping (Discretionary)', amt: formatCurrency(7500), pct: 12, color: '#8B5CF6' },
+                      { name: 'Transport (Transit/Fuel)', amt: formatCurrency(3370), pct: 5, color: '#3B82F6' },
+                      { name: 'Utilities (MSEB/Bills)', amt: formatCurrency(3068), pct: 5, color: '#6B7280' },
+                      { name: 'Food & Dining (Swiggy)', amt: formatCurrency(2990), pct: 5, color: '#F59E0B' },
                     ].map((cat) => (
                       <div key={cat.name}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, marginBottom: 2 }}>
@@ -476,22 +476,22 @@ export default function ProductDemoPlayer() {
                           Emergency Laptop Motherboard Repair
                         </div>
                         <div style={{ fontSize: 10, color: '#65738A', marginTop: 1 }}>
-                          2026-10-18 • Category: Uncategorized Baseline: ₹415
+                          2026-10-18 • Category: Uncategorized Baseline: {formatCurrency(415)}
                         </div>
                       </div>
                       <div style={{ fontSize: 16, fontWeight: 900, color: '#B42318' }}>
-                        -₹28,500.00
+                        -{formatCurrency(28500)}
                       </div>
                     </div>
                   </div>
 
                   <div style={{ fontSize: 11, color: '#4B5563', lineHeight: 1.5, background: '#F8FAFC', padding: 8, borderRadius: 6 }}>
-                    <strong>Explainable AI Narrative:</strong> This unexpected ₹28,500 outlay accounts for 44.8% of October expenses. Without this one-time spike, your true savings rate is 53.3% with an adjusted surplus of +₹39,970.
+                    <strong>Explainable AI Narrative:</strong> This unexpected {formatCurrency(28500)} outlay accounts for 44.8% of October expenses. Without this one-time spike, your true savings rate is 53.3% with an adjusted surplus of +{formatCurrency(39970)}.
                   </div>
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 6, alignItems: 'center' }}>
-                  <span style={{ fontSize: 10, color: '#0D7776', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <span style={{ fontSize: 10, color: '#4D7C0F', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2 }}>
                     Shortage prevention algorithm engaged <ChevronRight size={12} />
                   </span>
                 </div>
@@ -508,7 +508,7 @@ export default function ProductDemoPlayer() {
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <Target size={16} style={{ color: '#0D7776' }} />
+                    <Target size={16} style={{ color: '#4D7C0F' }} />
                     <span style={{ fontSize: 12, fontWeight: 700, color: '#17243A' }}>
                       Active Financial Targets & Feasibility
                     </span>
@@ -519,40 +519,40 @@ export default function ProductDemoPlayer() {
                 </div>
 
                 {/* Goal 1 */}
-                <div style={{ background: '#F8FAFC', borderRadius: 8, padding: 10, border: '1px solid #E2E8F0' }}>
+                <div style={{ background: '#F8F7F4', borderRadius: 8, padding: 10, border: '1px solid #E2E8F0' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                     <span style={{ fontSize: 12, fontWeight: 700, color: '#17243A' }}>
-                      🛡️ Emergency Reserve (6-Month Runway)
+                      Emergency Reserve (6-Month Runway)
                     </span>
-                    <span style={{ fontSize: 11, fontWeight: 800, color: '#0D7776' }}>
-                      ₹45,000 / ₹1,50,000 (30%)
+                    <span style={{ fontSize: 11, fontWeight: 800, color: '#4D7C0F' }}>
+                      {formatCurrency(45000)} / {formatCurrency(150000)} (30%)
                     </span>
                   </div>
                   <div style={{ height: 6, background: '#E2E8F0', borderRadius: 4, overflow: 'hidden', margin: '4px 0' }}>
                     <div style={{
                       height: '100%', width: '30%',
-                      background: 'linear-gradient(90deg, #0D7776, #0F9690)',
+                      background: 'linear-gradient(90deg, #4D7C0F, #65A30D)',
                       borderRadius: 4
                     }} />
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#65738A' }}>
                     <span>Target Date: 31 Mar 2027</span>
-                    <span>Required: ₹2,000/mo (Covered by Surplus)</span>
+                    <span>Required: {formatCurrency(2000)}/mo (Covered by Surplus)</span>
                   </div>
                 </div>
 
                 {/* Goal 2 */}
-                <div style={{ background: '#F8FAFC', borderRadius: 8, padding: 10, border: '1px solid #E2E8F0' }}>
+                <div style={{ background: '#F8F7F4', borderRadius: 8, padding: 10, border: '1px solid #E2E8F0' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                     <span style={{ fontSize: 12, fontWeight: 700, color: '#17243A' }}>
-                      💻 Work Laptop Upgrade
+                      Work Laptop Upgrade
                     </span>
-                    <span style={{ fontSize: 11, fontWeight: 800, color: '#0F9690' }}>
-                      ₹20,000 / ₹80,000 (25%)
+                    <span style={{ fontSize: 11, fontWeight: 800, color: '#65A30D' }}>
+                      {formatCurrency(20000)} / {formatCurrency(80000)} (25%)
                     </span>
                   </div>
                   <div style={{ height: 6, background: '#E2E8F0', borderRadius: 4, overflow: 'hidden', margin: '4px 0' }}>
-                    <div style={{ height: '100%', width: '25%', background: '#0F9690', borderRadius: 4 }} />
+                    <div style={{ height: '100%', width: '25%', background: '#65A30D', borderRadius: 4 }} />
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#65738A' }}>
                     <span>Target Date: 31 Jan 2027</span>
@@ -572,39 +572,39 @@ export default function ProductDemoPlayer() {
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <BrainCircuit size={16} style={{ color: '#0D7776' }} />
+                    <BrainCircuit size={16} style={{ color: '#4D7C0F' }} />
                     <span style={{ fontSize: 12, fontWeight: 700, color: '#17243A' }}>
                       Explainable Financial Insights (No Chatbot)
                     </span>
                   </div>
-                  <span style={{ fontSize: 10, fontWeight: 700, color: '#0D7776', background: '#E6F5F4', padding: '2px 8px', borderRadius: 10 }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: '#4D7C0F', background: '#F7FEE7', padding: '2px 8px', borderRadius: 10 }}>
                     High Confidence
                   </span>
                 </div>
 
                 {/* Insight 1 */}
                 <div style={{
-                  background: '#F0FDF4', borderLeft: '3px solid #16A34A',
-                  borderRadius: '0 6px 6px 0', padding: '8px 10px'
+                  background: '#F0FDF4', border: '1px solid #BBF7D0',
+                  borderRadius: 6, padding: '8px 10px'
                 }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: '#166534' }}>
                     Discretionary Cut Suggestion: Dining & Food Delivery
                   </div>
                   <div style={{ fontSize: 10, color: '#14532D', marginTop: 2 }}>
-                    Trimming Swiggy/Zomato food orders by 20% recovers ₹598/month toward your Emergency Fund without affecting essential groceries or utilities.
+                    Trimming Swiggy/Zomato food orders by 20% recovers {formatCurrency(598)}/month toward your Emergency Fund without affecting essential groceries or utilities.
                   </div>
                 </div>
 
                 {/* Insight 2 */}
                 <div style={{
-                  background: '#F8FAFC', borderLeft: '3px solid #0D7776',
-                  borderRadius: '0 6px 6px 0', padding: '8px 10px'
+                  background: '#F8F7F4', border: '1px solid #E2E8F0',
+                  borderRadius: 6, padding: '8px 10px'
                 }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: '#17243A' }}>
                     Runway Forecast & Buffer
                   </div>
                   <div style={{ fontSize: 10, color: '#65738A', marginTop: 2 }}>
-                    Daily burn rate normalized at ₹1,130/day. Net income sustains a 2.4-month reserve buffer even under elevated expense conditions.
+                    Daily burn rate normalized at {formatCurrency(1130)}/day. Net income sustains a 2.4-month reserve buffer even under elevated expense conditions.
                   </div>
                 </div>
               </div>
@@ -662,7 +662,7 @@ export default function ProductDemoPlayer() {
             <div style={{
               height: '100%',
               width: `${progressPct}%`,
-              background: 'linear-gradient(90deg, #0D7776, #0F9690, #10B981)',
+              background: 'linear-gradient(90deg, #4D7C0F, #65A30D, #15803D)',
               borderRadius: 2,
               transition: 'width 0.1s linear',
             }} />
@@ -683,7 +683,7 @@ export default function ProductDemoPlayer() {
                   padding: '3px 8px',
                   borderRadius: 4,
                   background: isActive ? 'rgba(15,150,144,0.35)' : 'transparent',
-                  color: isActive ? '#0F9690' : 'rgba(255,255,255,0.5)',
+                  color: isActive ? '#65A30D' : 'rgba(255,255,255,0.5)',
                   border: isActive ? '1px solid rgba(15,150,144,0.45)' : '1px solid transparent',
                   cursor: 'pointer',
                   transition: 'all 0.15s ease',
