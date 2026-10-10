@@ -1,5 +1,5 @@
 // src/pages/SettingsPage.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   User, Shield, Sliders, Database, Download, RefreshCw, Check, LogOut, Globe, Server
