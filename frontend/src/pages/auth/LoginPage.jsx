@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
+import BrandLogo from '../../components/common/BrandLogo';
 import { login, getUser } from '../../data/mockData';
 import ProductDemoPlayer from '../../components/demo/ProductDemoPlayer';
 import {
@@ -26,7 +27,7 @@ export default function LoginPage() {
       return;
     }
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 450));
+    await new Promise((r) => setTimeout(r, 400));
     const result = login(email, password);
     setLoading(false);
     if (result.success) {
@@ -43,7 +44,7 @@ export default function LoginPage() {
     setPassword('Demo@123');
     setError('');
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 350));
+    await new Promise((r) => setTimeout(r, 300));
     const result = login('demo@finassist.in', 'Demo@123');
     setLoading(false);
     if (result.success) {
@@ -61,27 +62,18 @@ export default function LoginPage() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'radial-gradient(1100px circle at 10% 8%, rgba(13,119,118,0.08) 0%, transparent 60%), radial-gradient(900px circle at 90% 25%, rgba(15,150,144,0.07) 0%, transparent 55%), #F4F7FA',
-      color: '#17243A',
+      background: '#F8FAFC',
+      color: '#0F172A',
       display: 'flex',
       flexDirection: 'column',
-      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Plus Jakarta Sans", sans-serif',
       position: 'relative',
       overflowX: 'hidden',
     }}>
-      {/* Subtle top ambient glow */}
-      <div style={{
-        position: 'absolute', top: 0, left: '20%', right: '20%', height: 180,
-        background: 'radial-gradient(ellipse at top, rgba(13,119,118,0.12), transparent 70%)',
-        pointerEvents: 'none', zIndex: 0,
-      }} />
-
-      {/* 1. COMPACT NAVIGATION HEADER */}
+      {/* 1. SOLID CLEAN NAVIGATION HEADER */}
       <header style={{
-        background: 'rgba(255, 255, 255, 0.92)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        borderBottom: '1px solid #DCE4EC',
+        background: '#FFFFFF',
+        borderBottom: '1px solid #E2E8F0',
         padding: '0 32px',
         height: 64,
         display: 'flex',
@@ -91,29 +83,21 @@ export default function LoginPage() {
         top: 0,
         zIndex: 50,
       }}>
-        {/* Brand Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{
-            width: 36, height: 36, borderRadius: 9,
-            background: 'linear-gradient(135deg, #0D7776 0%, #0F9690 100%)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 19, fontWeight: 900, color: '#FFFFFF', letterSpacing: -0.5,
-            boxShadow: '0 4px 12px rgba(13,119,118,0.3)',
+        {/* Brand Logo with New Folded Hex Mark */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <BrandLogo size={34} showText={true} textColor="#0F172A" accentColor="#65A30D" />
+          <span style={{
+            fontSize: 10,
+            fontWeight: 800,
+            color: '#365314',
+            background: '#F7FEE7',
+            padding: '3px 8px',
+            borderRadius: 6,
+            letterSpacing: '0.04em',
+            border: '1px solid #D9F99D',
           }}>
-            F
-          </div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-            <span style={{ fontSize: 20, fontWeight: 800, color: '#101C2E', letterSpacing: -0.4 }}>
-              Fin<span style={{ color: '#0D7776' }}>Assist</span>
-            </span>
-            <span style={{
-              fontSize: 10, fontWeight: 800, color: '#0D7776',
-              background: '#E6F5F4', padding: '2px 7px', borderRadius: 6, letterSpacing: '0.04em',
-              border: '1px solid rgba(13,119,118,0.25)',
-            }}>
-              AI COPILOT
-            </span>
-          </div>
+            AI COPILOT
+          </span>
         </div>
 
         {/* Right header actions */}
@@ -122,41 +106,39 @@ export default function LoginPage() {
             type="button"
             onClick={handleQuickDemoLogin}
             style={{
-              background: 'linear-gradient(135deg, #E6F5F4 0%, #D8F0EE 100%)',
-              border: '1px solid rgba(13,119,118,0.35)',
-              color: '#0D7776',
-              padding: '7px 14px',
+              background: '#F7FEE7',
+              border: '1px solid #D9F99D',
+              color: '#365314',
+              padding: '7px 15px',
               borderRadius: 8,
               fontSize: 12,
-              fontWeight: 800,
+              fontWeight: 700,
               cursor: 'pointer',
               display: 'inline-flex',
               alignItems: 'center',
               gap: 6,
-              boxShadow: '0 2px 6px rgba(13,119,118,0.1)',
-              transition: 'all 0.2s ease',
+              transition: 'background 0.15s ease',
             }}
             title="Instant 1-click evaluation sign in"
           >
-            <Zap size={13} style={{ fill: '#0D7776' }} />
+            <Zap size={13} style={{ fill: '#65A30D', color: '#65A30D' }} />
             1-Click Demo Sign-In
           </button>
 
           <Link
             to="/register"
             style={{
-              color: '#101C2E',
+              color: '#0F172A',
               fontSize: 13,
-              fontWeight: 700,
-              padding: '7px 14px',
+              fontWeight: 600,
+              padding: '7px 15px',
               borderRadius: 8,
               textDecoration: 'none',
-              border: '1px solid #DCE4EC',
+              border: '1px solid #CBD5E1',
               background: '#FFFFFF',
               display: 'inline-flex',
               alignItems: 'center',
               gap: 4,
-              boxShadow: '0 1px 3px rgba(16,28,46,0.04)',
             }}
           >
             Create Account
@@ -190,17 +172,16 @@ export default function LoginPage() {
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: 7,
               alignSelf: 'flex-start',
-              background: '#E6F5F4',
-              border: '1px solid rgba(13,119,118,0.3)',
+              background: '#F7FEE7',
+              border: '1px solid #D9F99D',
               padding: '5px 12px',
               borderRadius: 24,
               fontSize: 11,
-              fontWeight: 800,
-              color: '#0D7776',
+              fontWeight: 700,
+              color: '#365314',
               letterSpacing: '0.04em',
-              boxShadow: '0 2px 8px rgba(13,119,118,0.1)',
             }}>
-              <Sparkles size={14} style={{ color: '#0F9690' }} />
+              <Sparkles size={14} style={{ color: '#65A30D' }} />
               EXPLAINABLE AI PERSONAL FINANCE
             </div>
 
@@ -208,17 +189,15 @@ export default function LoginPage() {
             <div>
               <h1 style={{
                 fontSize: 38,
-                fontWeight: 900,
-                color: '#101C2E',
-                lineHeight: 1.15,
-                letterSpacing: -0.8,
+                fontWeight: 800,
+                color: '#0F172A',
+                lineHeight: 1.18,
+                letterSpacing: '-0.03em',
                 margin: 0,
               }}>
                 Take control of your money.{' '}
                 <span style={{
-                  background: 'linear-gradient(135deg, #0D7776 0%, #0F9690 50%, #07704A 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
+                  color: '#4D7C0F',
                   display: 'inline-block',
                 }}>
                   See your financial picture clearly.
@@ -226,7 +205,7 @@ export default function LoginPage() {
               </h1>
               <p style={{
                 fontSize: 15,
-                color: '#65738A',
+                color: '#475569',
                 lineHeight: 1.6,
                 marginTop: 12,
                 marginBottom: 0,
@@ -236,14 +215,14 @@ export default function LoginPage() {
             </div>
 
             {/* Value Proof Badges */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
               {[
                 { bold: 'Deterministic Runway:', text: 'Calculates true burn rate without generative hallucinations' },
                 { bold: 'Anomaly Spotlight:', text: 'Pinpoints emergency spikes like hardware repairs automatically' },
                 { bold: 'Discretionary Trims:', text: 'Actionable savings advice preserving fixed rent & utilities' },
               ].map((item) => (
-                <div key={item.bold} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: '#17243A' }}>
-                  <CheckCircle2 size={16} style={{ color: '#0D7776', flexShrink: 0, marginTop: 2 }} />
+                <div key={item.bold} style={{ display: 'flex', alignItems: 'flex-start', gap: 9, fontSize: 13, color: '#334155' }}>
+                  <CheckCircle2 size={16} style={{ color: '#4D7C0F', flexShrink: 0, marginTop: 2 }} />
                   <span>
                     <strong>{item.bold}</strong> {item.text}
                   </span>
@@ -256,22 +235,23 @@ export default function LoginPage() {
               background: '#FFFFFF',
               borderRadius: 14,
               padding: '24px 24px',
-              border: '1px solid #DCE4EC',
-              boxShadow: '0 16px 36px -8px rgba(16,28,46,0.1), 0 2px 6px rgba(16,28,46,0.04)',
+              border: '1px solid #E2E8F0',
+              boxShadow: '0 10px 25px -5px rgba(15,23,42,0.06), 0 1px 3px rgba(15,23,42,0.04)',
               position: 'relative',
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                 <div>
-                  <h2 style={{ fontSize: 18, fontWeight: 800, color: '#101C2E', margin: 0 }}>
+                  <h2 style={{ fontSize: 18, fontWeight: 700, color: '#0F172A', margin: 0, letterSpacing: '-0.02em' }}>
                     Sign in to your account
                   </h2>
-                  <p style={{ fontSize: 12, color: '#65738A', marginTop: 3, marginBottom: 0 }}>
+                  <p style={{ fontSize: 12, color: '#64748B', marginTop: 3, marginBottom: 0 }}>
                     Access your live financial dashboard
                   </p>
                 </div>
                 <div style={{
-                  width: 32, height: 32, borderRadius: 8, background: '#F4F7FA',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0D7776'
+                  width: 32, height: 32, borderRadius: 8, background: '#F8FAFC',
+                  border: '1px solid #E2E8F0',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4D7C0F'
                 }}>
                   <Lock size={15} />
                 </div>
@@ -282,8 +262,8 @@ export default function LoginPage() {
                   padding: '9px 12px',
                   borderRadius: 6,
                   background: '#FEF2F2',
-                  borderLeft: '3px solid #B42318',
-                  color: '#B42318',
+                  border: '1px solid #FECACA',
+                  color: '#B91C1C',
                   fontSize: 12,
                   marginBottom: 14,
                   fontWeight: 600,
@@ -317,12 +297,11 @@ export default function LoginPage() {
                   loading={loading}
                   style={{
                     marginTop: 4,
-                    background: 'linear-gradient(135deg, #0D7776 0%, #0F9690 100%)',
-                    border: 'none',
+                    background: '#4D7C0F',
+                    border: '1px solid #3F660C',
                     height: 42,
                     fontSize: 14,
                     fontWeight: 700,
-                    boxShadow: '0 4px 14px rgba(13,119,118,0.3)',
                   }}
                   icon={<ArrowRight size={15} />}
                 >
@@ -333,7 +312,7 @@ export default function LoginPage() {
               {/* Demo Credentials Box */}
               <div style={{
                 marginTop: 16,
-                padding: '11px 13px',
+                padding: '12px 14px',
                 borderRadius: 8,
                 background: '#F8FAFC',
                 border: '1px solid #E2E8F0',
@@ -344,11 +323,11 @@ export default function LoginPage() {
                 gap: 8,
               }}>
                 <div>
-                  <div style={{ fontSize: 11, fontWeight: 800, color: '#101C2E', display: 'flex', alignItems: 'center', gap: 5 }}>
-                    <KeyRound size={12} style={{ color: '#0D7776' }} />
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#0F172A', display: 'flex', alignItems: 'center', gap: 5 }}>
+                    <KeyRound size={12} style={{ color: '#4D7C0F' }} />
                     Demo Credentials:
                   </div>
-                  <div style={{ fontSize: 11, color: '#65738A', fontFamily: 'monospace', marginTop: 2 }}>
+                  <div style={{ fontSize: 11, color: '#475569', fontFamily: 'monospace', marginTop: 2 }}>
                     demo@finassist.in • Demo@123
                   </div>
                 </div>
@@ -359,12 +338,12 @@ export default function LoginPage() {
                     onClick={handleFillCredentials}
                     style={{
                       fontSize: 11,
-                      fontWeight: 700,
-                      color: '#0D7776',
-                      background: '#E6F5F4',
-                      border: '1px solid rgba(13,119,118,0.25)',
+                      fontWeight: 600,
+                      color: '#365314',
+                      background: '#F7FEE7',
+                      border: '1px solid #D9F99D',
                       padding: '4px 9px',
-                      borderRadius: 5,
+                      borderRadius: 6,
                       cursor: 'pointer',
                     }}
                   >
@@ -376,12 +355,12 @@ export default function LoginPage() {
                     onClick={handleQuickDemoLogin}
                     style={{
                       fontSize: 11,
-                      fontWeight: 800,
+                      fontWeight: 700,
                       color: '#FFFFFF',
-                      background: '#0D7776',
+                      background: '#4D7C0F',
                       border: 'none',
-                      padding: '4px 9px',
-                      borderRadius: 5,
+                      padding: '4px 10px',
+                      borderRadius: 6,
                       cursor: 'pointer',
                     }}
                   >
@@ -394,12 +373,12 @@ export default function LoginPage() {
                 marginTop: 14,
                 textAlign: 'center',
                 fontSize: 12,
-                color: '#65738A',
-                borderTop: '1px solid #F4F7FA',
+                color: '#64748B',
+                borderTop: '1px solid #F1F5F9',
                 paddingTop: 12,
               }}>
                 Need a new financial profile?{' '}
-                <Link to="/register" style={{ color: '#0D7776', fontWeight: 800, textDecoration: 'none' }}>
+                <Link to="/register" style={{ color: '#4D7C0F', fontWeight: 700, textDecoration: 'none' }}>
                   Create an account
                 </Link>
               </div>
@@ -409,20 +388,20 @@ export default function LoginPage() {
           {/* RIGHT COLUMN: CONTINUOUS PRODUCT DEMONSTRATION WINDOW WITH FLOATING BADGES */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, position: 'relative' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                <span style={{ fontSize: 13, fontWeight: 800, color: '#101C2E' }}>
-                  Live Animated Walkthrough
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>
+                  Live Interactive Walkthrough
                 </span>
                 <span style={{
-                  fontSize: 10, fontWeight: 800, color: '#0D7776',
-                  background: '#E6F5F4', padding: '2px 8px', borderRadius: 12,
-                  border: '1px solid rgba(13,119,118,0.3)',
+                  fontSize: 10, fontWeight: 700, color: '#365314',
+                  background: '#F7FEE7', padding: '2px 8px', borderRadius: 12,
+                  border: '1px solid #D9F99D',
                 }}>
-                  CONTINUOUS LOOP
+                  CONTINUOUS DEMO
                 </span>
               </div>
-              <span style={{ fontSize: 11, color: '#65738A', fontWeight: 500 }}>
-                Automatic multi-scene demonstration
+              <span style={{ fontSize: 11, color: '#64748B', fontWeight: 500 }}>
+                Interactive preview
               </span>
             </div>
 
@@ -439,7 +418,7 @@ export default function LoginPage() {
                 borderRadius: 20,
                 padding: '6px 12px',
                 border: '1px solid #FCD34D',
-                boxShadow: '0 8px 20px rgba(245,158,11,0.2)',
+                boxShadow: '0 8px 16px rgba(245,158,11,0.15)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 6,
@@ -447,7 +426,7 @@ export default function LoginPage() {
                 animation: 'floatSlow 4s ease-in-out infinite',
               }}>
                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#F59E0B' }} />
-                <span style={{ fontSize: 11, fontWeight: 800, color: '#92400E' }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#92400E' }}>
                   ₹28.5k Anomaly Spotted
                 </span>
               </div>
@@ -460,16 +439,16 @@ export default function LoginPage() {
                 background: '#FFFFFF',
                 borderRadius: 20,
                 padding: '6px 12px',
-                border: '1px solid rgba(13,119,118,0.3)',
-                boxShadow: '0 8px 20px rgba(13,119,118,0.18)',
+                border: '1px solid #BBF7D0',
+                boxShadow: '0 8px 16px rgba(21,128,61,0.12)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 6,
                 zIndex: 30,
                 animation: 'floatSlow 4s ease-in-out infinite 2s',
               }}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#07704A' }} />
-                <span style={{ fontSize: 11, fontWeight: 800, color: '#07704A' }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#15803D' }} />
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#15803D' }}>
                   +₹11,470 Surplus Verified
                 </span>
               </div>
@@ -478,9 +457,9 @@ export default function LoginPage() {
             {/* Helper Caption */}
             <div style={{
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              fontSize: 11, color: '#65738A', padding: '0 4px', marginTop: 4
+              fontSize: 11, color: '#64748B', padding: '0 4px', marginTop: 4
             }}>
-              <span>Built entirely in React • Zero video files or external streams</span>
+              <span>Built in React • No video streams</span>
               <span>100% Deterministic Financial Logic</span>
             </div>
           </div>
@@ -495,8 +474,8 @@ export default function LoginPage() {
         }}>
           {[
             {
-              icon: <BarChart3 size={19} style={{ color: '#0D7776' }} />,
-              title: 'Multi-Format Statement Ingestion',
+              icon: <BarChart3 size={19} style={{ color: '#4D7C0F' }} />,
+              title: 'Statement Ingestion',
               desc: 'Seamless CSV parsing supporting flexible dates and debit/credit columns without manual data entry.',
             },
             {
@@ -505,12 +484,12 @@ export default function LoginPage() {
               desc: 'Identifies one-off emergency expenditure spikes (+6,767% deviation) without hiding them in averages.',
             },
             {
-              icon: <Target size={19} style={{ color: '#0D7776' }} />,
+              icon: <Target size={19} style={{ color: '#4D7C0F' }} />,
               title: 'Mathematical Savings Milestones',
               desc: 'Calculates exact required monthly surplus to hit targets, distinguishing feasible goals from unrealistic dreams.',
             },
             {
-              icon: <BrainCircuit size={19} style={{ color: '#0F9690' }} />,
+              icon: <BrainCircuit size={19} style={{ color: '#65A30D' }} />,
               title: 'Insights-Only AI Financial Coach',
               desc: 'Dedicated intelligence hub recommending 20% discretionary trims without chatbot hallucinations.',
             },
@@ -520,26 +499,25 @@ export default function LoginPage() {
               style={{
                 background: '#FFFFFF',
                 borderRadius: 12,
-                padding: '18px 20px',
-                border: '1px solid #DCE4EC',
+                padding: '20px',
+                border: '1px solid #E2E8F0',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 10,
-                boxShadow: '0 2px 6px rgba(16,28,46,0.03)',
-                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                boxShadow: '0 1px 3px rgba(15,23,42,0.05)',
               }}
             >
               <div style={{
-                width: 38, height: 38, borderRadius: 9,
-                background: '#F4F7FA', border: '1px solid #E2E8F0',
+                width: 38, height: 38, borderRadius: 8,
+                background: '#F8FAFC', border: '1px solid #E2E8F0',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 {card.icon}
               </div>
-              <div style={{ fontSize: 14, fontWeight: 800, color: '#17243A' }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#0F172A', letterSpacing: '-0.01em' }}>
                 {card.title}
               </div>
-              <div style={{ fontSize: 12, color: '#65738A', lineHeight: 1.55 }}>
+              <div style={{ fontSize: 12, color: '#64748B', lineHeight: 1.55 }}>
                 {card.desc}
               </div>
             </div>
@@ -550,13 +528,13 @@ export default function LoginPage() {
       {/* 4. FOOTER */}
       <footer style={{
         background: '#FFFFFF',
-        borderTop: '1px solid #DCE4EC',
+        borderTop: '1px solid #E2E8F0',
         padding: '18px 32px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         fontSize: 12,
-        color: '#65738A',
+        color: '#64748B',
         marginTop: 'auto',
       }}>
         <div>
@@ -564,7 +542,7 @@ export default function LoginPage() {
         </div>
         <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <ShieldCheck size={14} style={{ color: '#07704A' }} /> Privacy-First Architecture
+            <ShieldCheck size={14} style={{ color: '#15803D' }} /> Privacy-First Architecture
           </span>
           <span>Zero External Video Dependencies</span>
         </div>
@@ -574,7 +552,7 @@ export default function LoginPage() {
       <style>{`
         @keyframes floatSlow {
           0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-5px); }
+          50% { transform: translateY(-4px); }
         }
         @media (max-width: 980px) {
           .hero-grid {

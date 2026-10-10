@@ -226,4 +226,141 @@ All stress tests implemented and automated via [`backend/test_stress_edge_cases.
 - Empty User Handling: Returns `{"transaction": null, "deviation_pct": 0.0, "explanation": "No expense transactions recorded yet to analyze for spending anomalies."}` without error or crash.
 - Designation: **Official demo "wow moment"** to present to hackathon judges to showcase explainable AI copilot capabilities.
 
+---
+
+## Block 8: Time-Series Cash-Flow Forecasting via Exponential Moving Average (EMA) (Completed)
+
+### 1. Mathematical Formulation & Architecture
+- **Requirement:** Upgrade cash shortage predictor from a flat burn rate to time-series forecasting to satisfy hackathon Problem Statement criteria.
+- **Daily Spend Aggregation:** Expenses are aggregated into daily transaction sums ($S_t = \sum \text{expenses on day } t$) and sorted chronologically.
+- **EMA Seeding:** Seeded with the average daily spend over the first 3 days:
+  $$\text{EMA}_3 = \frac{S_1 + S_2 + S_3}{3}$$
+- **Time-Series Recurrence Formula:**
+  $$\text{EMA}_t = \alpha \cdot S_t + (1 - \alpha) \cdot \text{EMA}_{t-1}, \quad \text{with } \alpha = 0.3$$
+- **Downstream Runway & Shortage Projection:**
+  - $\text{predicted\_balance}(d) = \text{current\_balance} - (\text{EMA} \cdot d)$
+  - $\text{days\_remaining} = \frac{\text{current\_balance}}{\text{EMA}}$
+  - $\text{shortage\_date} = \text{today} + \text{days\_remaining}$ (if $\text{days\_remaining} < \text{days\_ahead}$)
+  - $\text{risk\_level}$: $< 7$ days $\rightarrow$ `"high"`, $7–21$ days $\rightarrow$ `"medium"`, $> 21$ days $\rightarrow$ `"low"`.
+
+### 2. Transparent Explainability Fields Added to `/predict`
+- `"forecast_method"`: `"EMA (alpha=0.3)"` (or `"simple_average (insufficient data)"` on fallback).
+- `"data_points_used"`: Number of historical transaction data points utilized ($N$).
+- Judges and frontend clients can verify that real time-series forecasting is running under the hood.
+
+### 3. Graceful Fallback Strategy Tested
+- **Condition:** If fewer than 5 transactions are present ($N < 5$), the engine falls back to simple average burn rate ($N=14$ window) and flags `"forecast_method": "simple_average (insufficient data)"`.
+- **Empty-state:** 0 transactions returns `"forecast_method": "simple_average (insufficient data)"` with `data_points_used = 0` and low risk without division-by-zero crash.
+
+### 4. Automated Verification Suite (`backend/test_predictor_ema.py`)
+All 6 test suites automated and verified:
+1. **0 Transactions:** Handled gracefully, returns `"simple_average (insufficient data)"`, `data_points_used = 0`.
+2. **3 Transactions (Sparse Fallback):** Falls back to simple average, returns `data_points_used = 3`.
+3. **4 Transactions (Boundary Fallback):** Falls back to simple average, returns `data_points_used = 4`.
+4. **5 Transactions (Boundary EMA Trigger):** Triggers `"EMA (alpha=0.3)"`, returns `data_points_used = 5` with exact recurrence match.
+5. **Full `demo.csv` (25 Rows):** Returns `"forecast_method": "EMA (alpha=0.3)"`, `data_points_used = 25`, daily spend ₹1,268, high risk shortage by 2026-10-25.
+6. **Multiple Transactions On Same Day:** Correctly sums daily spend before applying EMA recurrence.
+
+---
+
+## Block 9: Constraint-Satisfaction Savings Optimizer Refactor (Completed)
+
+### 1. Architectural & Formalization Upgrade
+- **Formalization:** Refactored `suggest_cuts()` into `optimize_savings_allocation()` formulated as an explicit constraint-satisfaction optimization problem.
+- **Inviolable Constraints:** `FIXED_CATEGORIES = ["rent", "utilities"]` strictly protected from any reduction.
+- **Category Bound Constraints:** `MAX_CUT_PER_CATEGORY = 0.20` enforces a 20% maximum reduction ceiling on discretionary spend.
+- **Optimization Target:** `TOTAL_TARGET = required_monthly_savings` explicitly defined as variables at the top of the function.
+- **Docstring:** Explicitly documents the problem as a "constraint-satisfaction optimizer for discretionary budget cuts."
+- **Backward Compatibility:** `suggest_cuts` maintained as an alias, returning transparently compatible `OptimizationResult` objects.
+
+### 2. Constraint Metadata Added
+- Every cut in the response contains constraint audit metadata:
+  ```json
+  {
+    "category": "food",
+    "current": 9800.0,
+    "suggested": 8000.0,
+    "cut_pct": 18.4,
+    "constraint_applied": "max_20pct_cap",
+    "reason": "18% reduction in discretionary food spend"
+  }
+  ```
+
+### 3. Infeasible Goal Handling
+- Rather than silently returning an incomplete partial plan, when total possible cuts across all discretionary categories cannot reach the required savings target:
+  ```json
+  {
+    "feasible": false,
+    "max_achievable_savings": 3000.0,
+    "gap": 2000.0
+  }
+  ```
+- `/savings-plan` and `SavingsPlanResponse` updated with `feasible`, `max_achievable_savings`, and `gap` to clearly expose shortfalls to clients and judges.
+
+### 4. Automated Verification Suite (`backend/test_planner_optimizer.py`)
+All 6 tests automated and verified:
+1. **Docstring Check:** Explicitly includes "constraint-satisfaction".
+2. **Variable Definitions:** `MAX_CUT_PER_CATEGORY = 0.20`, `FIXED_CATEGORIES = ["rent", "utilities"]`, `TOTAL_TARGET = required_monthly_savings` verified via AST/source inspection.
+3. **Cut Metadata:** Verifies `cut_pct=18.4`, `constraint_applied="max_20pct_cap"` on test category.
+4. **Infeasible Case:** Verifies `{ "feasible": False, "max_achievable_savings": 3000.0, "gap": 2000.0 }`.
+5. **suggest_cuts Alias:** Confirms exact backward-compatible behavior.
+6. **API Integration (GET `/savings-plan`):** Feasible plan returns `constraint_applied` on all cuts; infeasible plan clearly returns `feasible=false`, `gap`, and `max_achievable_savings`.
+
+---
+
+## Block 10: 1-Click Demo Ingest & Explicit Data Confidence Level (Completed)
+
+### 1. 1-Click Demo Seed Endpoint (`POST /api/demo/load` & `POST /demo/load`)
+- **Purpose:** Solves the hackathon Problem Statement requirement for loading sample borrower data without requiring a manual CSV file upload step.
+- **Workflow Executed:**
+  1. Resets existing user data for `user_id` (defaults to 1).
+  2. Sets sample monthly borrower income (`₹45,000`).
+  3. Ingests all 25 pre-categorized transactions from `data/demo.csv` into the user account.
+  4. Seeds a realistic default savings goal (`₹50,000` over `6` months).
+- **Response Contract:**
+  ```json
+  {
+    "status": "success",
+    "message": "Sample borrower demo data loaded successfully! Financial dashboard, cash-flow forecast, and anomaly spotlight are ready.",
+    "user_id": 1,
+    "borrower_name": "Demo Borrower",
+    "monthly_income": 45000.0,
+    "rows_imported": 25,
+    "rows_failed": 0,
+    "categories_found": ["food", "rent", "shopping", "subscriptions", "transport", "uncategorized", "utilities"]
+  }
+  ```
+
+### 2. Explicit Confidence Metric on `GET /predict`
+- **Metric Added:** `"confidence_level": "high" | "medium" | "low"` in `GET /predict` and `GET /api/predict`.
+- **Classification Thresholds (Based on `data_points_used`):**
+  - $\ge 14$ transactions $\rightarrow$ `"high"` (captures standard 2-week/month runway cycle).
+  - $5–13$ transactions $\rightarrow$ `"medium"` (sufficient for EMA time-series, moderate confidence).
+  - $< 5$ transactions $\rightarrow$ `"low"` (insufficient data, triggers simple average fallback).
+- **Exposed in Response:**
+  ```json
+  {
+    "current_balance": -18530.0,
+    "predicted_balance": -56576.3,
+    "shortage_predicted": true,
+    "shortage_date": "2026-10-25",
+    "risk_level": "high",
+    "explanation": "...",
+    "forecast_method": "EMA (alpha=0.3)",
+    "data_points_used": 25,
+    "confidence_level": "high"
+  }
+  ```
+
+### 3. Automated Verification Suite (`backend/test_demo_load.py`)
+All 5 tests automated and verified:
+1. `POST /api/demo/load` & `POST /demo/load` (25 rows imported, status 200).
+2. `GET /api/dashboard` verification (balance, income, expenses reflect imported transactions).
+3. `GET /api/predict` returns `confidence_level: "high"` with 25 transactions.
+4. Confidence level boundary checks ($0 \rightarrow \text{low}, 3 \rightarrow \text{low}, 5 \rightarrow \text{medium}, 14 \rightarrow \text{high}$).
+5. `GET /api/anomaly-spotlight` verification against loaded demo data.
+
+
+
+
 

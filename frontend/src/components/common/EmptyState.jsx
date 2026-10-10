@@ -10,11 +10,11 @@ export default function EmptyState({ icon, title, message, action, actionLabel }
     }}>
       {icon && (
         <div style={{
-          width: 72, height: 72, borderRadius: '50%',
-          background: '#E2F1F0', display: 'flex', alignItems: 'center',
-          justifyContent: 'center', marginBottom: 16, fontSize: 32,
+          width: 56, height: 56, borderRadius: '50%',
+          background: '#F1F0EC', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center',
+          justifyContent: 'center', marginBottom: 16, color: '#475569',
         }}>
-          {icon}
+          {React.isValidElement(icon) ? icon : (typeof icon === 'function' ? React.createElement(icon, { size: 24 }) : icon)}
         </div>
       )}
       <h3 style={{ fontSize: 16, fontWeight: 700, color: '#0F1B2D', marginBottom: 6 }}>{title}</h3>

@@ -14,20 +14,27 @@ logger = logging.getLogger("finassist.predictor")
 
 def predict_balance(user_id: int, days_ahead: int = 30) -> Dict[str, Any]:
     """
-    Calculate cash shortage projection based on historical spending.
-    Exact formula per financial_logic.md:
-      - daily_burn_rate = total_expenses_last_N_days / N (N = 14)
-      - days_remaining = current_balance / daily_burn_rate
-      - predicted_balance(d) = current_balance - (daily_burn_rate * d)
-      - shortage_date = today + days_remaining (if days_remaining < days_ahead)
-      - risk_level: < 7 days -> high, 7-21 days -> medium, > 21 days -> low
+    Calculate cash shortage projection based on historical spending using
+    Exponential Moving Average (EMA) time-series forecasting.
+
+    Time-Series Forecasting Spec:
+      - Daily Transaction Aggregation: spend_today = sum of expenses on that day
+      - EMA Formula: ema_today = alpha * spend_today + (1 - alpha) * ema_yesterday
+      - Alpha parameter: alpha = 0.3 (weights recent days higher to capture spending spikes)
+      - Seeding: Initialized with the average daily spend over the first 3 days
+      - Fallback: If fewer than 5 transactions, fall back to simple average
+      - Downstream Projections:
+          - predicted_balance(d) = current_balance - (daily_burn_rate * d)
+          - shortage_date = today + (current_balance / daily_burn_rate)
+          - risk_level: < 7 days -> high, 7-21 days -> medium, > 21 days -> low
     """
     user = db_service.get_user(user_id)
     monthly_income = float(user.get("monthly_income", 0.0)) if user else 0.0
 
     transactions = db_service.get_transactions(user_id)
 
-    # Compute current total expenses & current balance
+    # Separate expense transactions and aggregate category totals
+    expense_txns = []
     total_expenses = 0.0
     parsed_dates = []
     cat_totals: Dict[str, float] = {}
@@ -37,6 +44,7 @@ def predict_balance(user_id: int, days_ahead: int = 30) -> Dict[str, Any]:
         if amt < 0:
             exp = abs(amt)
             total_expenses += exp
+            expense_txns.append(t)
             c = (t.get("category") or "uncategorized").lower()
             cat_totals[c] = cat_totals.get(c, 0.0) + exp
 
@@ -49,34 +57,79 @@ def predict_balance(user_id: int, days_ahead: int = 30) -> Dict[str, Any]:
 
     current_balance = round(monthly_income - total_expenses, 2)
     today = max(parsed_dates) if parsed_dates else date.today()
+    top_categories = [c for c, _ in sorted(cat_totals.items(), key=lambda x: x[1], reverse=True)[:3]]
+    data_points_used = len(expense_txns)
 
-    # Determine N-day window for daily burn rate calculation (default N=14)
-    window_days = 14
-    if parsed_dates:
-        min_dt = min(parsed_dates)
-        max_dt = max(parsed_dates)
+    # Empty state: No expense transactions recorded
+    if not expense_txns:
+        forecast_method = "simple_average (insufficient data)"
+        return {
+            "current_balance": current_balance,
+            "predicted_balance": current_balance,
+            "shortage_predicted": False,
+            "shortage_date": None,
+            "risk_level": "low",
+            "forecast_method": forecast_method,
+            "data_points_used": 0,
+            "confidence_level": "low",
+            "explanation": explain_shortage(
+                current_balance=current_balance,
+                daily_burn_rate=0.0,
+                top_categories=top_categories,
+                shortage_date=None,
+                days_ahead=days_ahead,
+                shortage_predicted=False,
+                predicted_balance=current_balance,
+            ),
+        }
+
+    # Explicit data confidence level based on verified transaction sample size
+    if data_points_used >= 14:
+        confidence_level = "high"
+    elif data_points_used >= 5:
+        confidence_level = "medium"
+    else:
+        confidence_level = "low"
+
+    # Fallback vs EMA Time-Series Forecasting
+    if data_points_used < 5:
+        # Fallback: Simple average burn rate for sparse data (< 5 transactions)
+        forecast_method = "simple_average (insufficient data)"
+        min_dt = min(parsed_dates) if parsed_dates else today
+        max_dt = max(parsed_dates) if parsed_dates else today
         date_span = (max_dt - min_dt).days + 1
         window_days = max(14, date_span)
+        daily_burn_rate = round(total_expenses / max(window_days, 1), 2)
+    else:
+        # EMA Time-Series Forecast over daily transaction sums
+        forecast_method = "EMA (alpha=0.3)"
+        alpha = 0.3
 
-    # Calculate recent expenses within the window
-    window_start = today - timedelta(days=window_days)
-    recent_expenses = 0.0
-    for t in transactions:
-        amt = float(t.get("amount", 0.0))
-        if amt < 0:
+        # Aggregate daily transaction sums (chronologically sorted)
+        daily_spend: Dict[date, float] = {}
+        for t in expense_txns:
             dt_str = t.get("date")
             try:
                 dt = datetime.strptime(str(dt_str)[:10], "%Y-%m-%d").date()
-                if dt >= window_start:
-                    recent_expenses += abs(amt)
             except Exception:
-                recent_expenses += abs(amt)
+                dt = today
+            daily_spend[dt] = daily_spend.get(dt, 0.0) + abs(float(t.get("amount", 0.0)))
+
+        sorted_dates = sorted(daily_spend.keys())
+        daily_totals = [daily_spend[d] for d in sorted_dates]
+
+        # Seed EMA from first 3 days average
+        if len(daily_totals) >= 3:
+            ema = sum(daily_totals[:3]) / 3.0
+            for spend_today in daily_totals[3:]:
+                ema = alpha * spend_today + (1.0 - alpha) * ema
+        else:
+            # If >= 5 transactions occurred across 1 or 2 distinct calendar days
+            ema = sum(daily_totals) / float(len(daily_totals))
+
+        daily_burn_rate = round(ema, 2)
 
     # Guard divide-by-zero burn rate
-    daily_burn_rate = round(recent_expenses / max(window_days, 1), 2) if window_days > 0 else 0.0
-
-    top_categories = [c for c, _ in sorted(cat_totals.items(), key=lambda x: x[1], reverse=True)[:3]]
-
     if daily_burn_rate == 0.0:
         return {
             "current_balance": current_balance,
@@ -84,6 +137,9 @@ def predict_balance(user_id: int, days_ahead: int = 30) -> Dict[str, Any]:
             "shortage_predicted": False,
             "shortage_date": None,
             "risk_level": "low",
+            "forecast_method": forecast_method,
+            "data_points_used": data_points_used,
+            "confidence_level": confidence_level,
             "explanation": explain_shortage(
                 current_balance=current_balance,
                 daily_burn_rate=0.0,
@@ -115,6 +171,9 @@ def predict_balance(user_id: int, days_ahead: int = 30) -> Dict[str, Any]:
             "shortage_predicted": True,
             "shortage_date": shortage_date_str,
             "risk_level": "high",
+            "forecast_method": forecast_method,
+            "data_points_used": data_points_used,
+            "confidence_level": confidence_level,
             "explanation": explanation,
         }
 
@@ -152,5 +211,8 @@ def predict_balance(user_id: int, days_ahead: int = 30) -> Dict[str, Any]:
         "shortage_predicted": shortage_predicted,
         "shortage_date": shortage_date_str,
         "risk_level": risk_level,
+        "forecast_method": forecast_method,
+        "data_points_used": data_points_used,
+        "confidence_level": confidence_level,
         "explanation": explanation,
     }

@@ -68,7 +68,10 @@ Upload CSV, parse + categorize.
   "shortage_predicted": true,
   "shortage_date": "2026-11-18",
   "risk_level": "high",
-  "explanation": "Based on your average daily spend of ₹1,480 over the last 14 days, your balance is projected to go negative by Nov 18 unless spending drops."
+  "explanation": "Based on your average daily spend of ₹1,268, your current balance of ₹6,800 is projected to deplete by 2026-11-18. Trimming discretionary spending will extend your runway.",
+  "forecast_method": "EMA (alpha=0.3)",
+  "data_points_used": 25,
+  "confidence_level": "high"
 }
 ```
 
@@ -90,15 +93,44 @@ Upload CSV, parse + categorize.
 
 ## GET /savings-plan?user_id=1
 
-**Response 200**
+**Response 200 (Feasible Plan)**
 ```json
 {
   "required_monthly_savings": 2000,
+  "feasible": true,
+  "max_achievable_savings": 3500,
+  "gap": 0,
   "suggested_cuts": [
-    { "category": "food", "current": 9800, "suggested": 8000, "reason": "20% above your 3-month average" },
-    { "category": "shopping", "current": 5000, "suggested": 3500, "reason": "Discretionary category with most flexibility" }
+    {
+      "category": "food",
+      "current": 9800,
+      "suggested": 8000,
+      "cut_pct": 18.4,
+      "constraint_applied": "max_20pct_cap",
+      "reason": "18% reduction in discretionary food spend"
+    },
+    {
+      "category": "shopping",
+      "current": 5000,
+      "suggested": 3500,
+      "cut_pct": 20.0,
+      "constraint_applied": "max_20pct_cap",
+      "reason": "20% reduction in discretionary shopping spend"
+    }
   ],
   "explanation": "To hit ₹10,000 in 5 months, you need to save ₹2,000/month. Your food spend is 23% above typical — trimming here is lowest-impact on lifestyle."
+}
+```
+
+**Response 200 (Infeasible Plan — Explicit Shortfall Returned)**
+```json
+{
+  "required_monthly_savings": 20000,
+  "feasible": false,
+  "max_achievable_savings": 4500,
+  "gap": 8530,
+  "suggested_cuts": [],
+  "explanation": "To reach ₹100,000 in 5 months, you need to save ₹20,000/month. Even with the maximum 20% cut across discretionary spending, a gap of ₹8,530 remains."
 }
 ```
 
@@ -121,6 +153,34 @@ Surface the single biggest spending anomaly prominently as a standalone AI-expla
   },
   "deviation_pct": 6767.5,
   "explanation": "This ₹28,500 spend on Emergency Laptop Motherboard Repair stands out as it is 6767% above your typical uncategorized baseline (₹415), representing your single largest spending spike."
+}
+```
+
+---
+
+## POST /demo/load
+
+1-Click demo seed endpoint for hackathon judges & frontend demo buttons — loads sample borrower data, sets income, and pre-configures financial state without requiring CSV upload.
+
+**Request (Optional JSON or empty body)**
+```json
+{
+  "user_id": 1,
+  "monthly_income": 45000
+}
+```
+
+**Response 200**
+```json
+{
+  "status": "success",
+  "message": "Sample borrower demo data loaded successfully! Financial dashboard, cash-flow forecast, and anomaly spotlight are ready.",
+  "user_id": 1,
+  "borrower_name": "Demo Borrower",
+  "monthly_income": 45000.0,
+  "rows_imported": 25,
+  "rows_failed": 0,
+  "categories_found": ["rent", "food", "transport", "shopping", "subscriptions", "utilities", "uncategorized"]
 }
 ```
 

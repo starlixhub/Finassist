@@ -50,6 +50,9 @@ async def get_prediction(
             shortage_date=prediction.get("shortage_date"),
             risk_level=str(prediction["risk_level"]),
             explanation=str(prediction["explanation"]),
+            forecast_method=str(prediction.get("forecast_method", "EMA (alpha=0.3)")),
+            data_points_used=int(prediction.get("data_points_used", 0)),
+            confidence_level=str(prediction.get("confidence_level", "low")),
         )
     except Exception as e:
         logger.error(f"Error computing prediction for user {user_id}: {e}", exc_info=True)

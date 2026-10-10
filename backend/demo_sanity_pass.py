@@ -108,6 +108,10 @@ def run_sanity_pass():
     assert "shortage_predicted" in body4
     assert "risk_level" in body4
     assert "explanation" in body4
+    assert "forecast_method" in body4
+    assert "data_points_used" in body4
+    assert body4["forecast_method"] == "EMA (alpha=0.3)"
+    assert body4["data_points_used"] == 25
     assert body4["shortage_predicted"] is True
     assert body4["risk_level"] == "high"
     results["GET /predict"] = "DONE (200 OK - exact match with api.md)"

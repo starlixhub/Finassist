@@ -51,12 +51,7 @@ export default function AppShell({ pageTitle, pageDescription, headerActions }) 
 
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
-      {/* Desktop sidebar */}
-      <div style={{ display: 'flex' }} className="desktop-sidebar">
-        <Sidebar user={user} />
-      </div>
-
-      {/* Mobile sidebar */}
+      {/* Unified responsive sidebar */}
       <Sidebar
         user={user}
         mobileOpen={mobileOpen}
@@ -74,7 +69,7 @@ export default function AppShell({ pageTitle, pageDescription, headerActions }) 
         <main style={{
           flex: 1,
           overflowY: 'auto',
-          background: '#F5F7FA',
+          background: '#F5F2EB',
           padding: 24,
         }}>
           <Outlet />

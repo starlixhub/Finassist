@@ -99,7 +99,12 @@ def call_openrouter(prompt: str, kind: str = "general", data: Optional[Dict[str,
     Call OpenRouter API to synthesize natural language explanation.
     Guaranteed never to crash: falls back to template text on timeout, network error, or missing key.
     """
-    api_key = os.getenv("OPENROUTER_API_KEY") or os.getenv("OPENROUTER_KEY") or OPENROUTER_API_KEY
+    api_key = os.getenv("OPENROUTER_API_KEY")
+    if api_key is None:
+        api_key = os.getenv("OPENROUTER_KEY")
+    if api_key is None:
+        api_key = OPENROUTER_API_KEY
+
     if not api_key or api_key.strip() == "" or api_key == "your_openrouter_api_key_here":
         logger.info("OPENROUTER_API_KEY not set or placeholder; using deterministic fallback explanation.")
         return fallback_explanation(kind=kind, data=data)

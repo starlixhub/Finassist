@@ -13,4 +13,4 @@ services:
       - key: OPENROUTER_API_KEY
         sync: false
       - key: OPENROUTER_MODEL
-        value: anthropic/claude-3.5-sonnet
+        value: NVIDIA/Nemetron 3 ultra(free)

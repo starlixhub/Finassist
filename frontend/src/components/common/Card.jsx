@@ -1,24 +1,36 @@
 // src/components/common/Card.jsx
 import React from 'react';
 
-export default function Card({ children, style = {}, accentColor, padding = 20, onClick }) {
+export default function Card({
+  children,
+  style = {},
+  accentColor,
+  padding = 20,
+  onClick,
+  hoverable = false,
+}) {
+  const isInteractive = Boolean(onClick || hoverable);
+
   return (
     <div
       onClick={onClick}
       style={{
-        background: '#FFFFFF',
-        border: '1px solid #D9E0E9',
-        borderRadius: 8,
+        background: 'var(--bg-card, #FFFFFF)',
+        border: '1px solid var(--border, #E5E0D5)',
+        borderRadius: 12,
         padding,
-        boxShadow: '0 1px 3px rgba(15,27,45,0.08)',
+        boxShadow: 'none',
         position: 'relative',
-        cursor: onClick ? 'pointer' : 'default',
-        transition: onClick ? 'box-shadow 0.15s' : undefined,
-        ...(accentColor ? { borderTop: `3px solid ${accentColor}` } : {}),
+        cursor: isInteractive ? 'pointer' : 'default',
+        transition: isInteractive ? 'border-color 0.15s ease, background 0.15s ease' : undefined,
         ...style,
       }}
-      onMouseEnter={onClick ? e => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(15,27,45,0.12)'; } : undefined}
-      onMouseLeave={onClick ? e => { e.currentTarget.style.boxShadow = '0 1px 3px rgba(15,27,45,0.08)'; } : undefined}
+      onMouseEnter={isInteractive ? e => {
+        e.currentTarget.style.borderColor = '#CBD5CD';
+      } : undefined}
+      onMouseLeave={isInteractive ? e => {
+        e.currentTarget.style.borderColor = 'var(--border, #E5E0D5)';
+      } : undefined}
     >
       {children}
     </div>

@@ -117,6 +117,8 @@ async def get_savings_plan(user_id: int = Query(1, description="User ID")):
                 category=c["category"],
                 current=float(c["current"]),
                 suggested=float(c["suggested"]),
+                cut_pct=float(c["cut_pct"]) if c.get("cut_pct") is not None else None,
+                constraint_applied=str(c.get("constraint_applied", "max_20pct_cap")),
                 reason=str(c["reason"]),
             )
             for c in plan.get("suggested_cuts", [])
@@ -124,6 +126,9 @@ async def get_savings_plan(user_id: int = Query(1, description="User ID")):
 
         return SavingsPlanResponse(
             required_monthly_savings=float(plan["required_monthly_savings"]),
+            feasible=bool(plan.get("feasible", True)),
+            max_achievable_savings=float(plan["max_achievable_savings"]) if plan.get("max_achievable_savings") is not None else None,
+            gap=float(plan.get("gap", 0.0)),
             suggested_cuts=cuts,
             explanation=str(plan["explanation"]),
         )

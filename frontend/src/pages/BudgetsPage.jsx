@@ -1,6 +1,9 @@
 // src/pages/BudgetsPage.jsx
 import React, { useState } from 'react';
-import { Plus, Edit2, Trash2, AlertCircle } from 'lucide-react';
+import {
+  Plus, Edit2, Trash2, AlertCircle, BarChart3, Home, Utensils,
+  Car, ShoppingBag, Smartphone, Zap, Package, DollarSign, AlertTriangle, Bell
+} from 'lucide-react';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import Input from '../components/common/Input';
@@ -11,15 +14,28 @@ import ProgressBar from '../components/common/ProgressBar';
 import EmptyState from '../components/common/EmptyState';
 import { getBudgets, addBudget, updateBudget, deleteBudget, getTransactions } from '../data/mockData';
 import { getCategoryBreakdown } from '../utils/calculations';
-import { formatCurrency, categoryLabels, categoryIcons } from '../utils/formatters';
+import { formatCurrency, categoryLabels } from '../utils/formatters';
 import { useToast } from '../components/common/Toast';
+import { useCurrency } from '../context/CurrencyContext';
 
-const ALL_CATEGORIES = ['food', 'transport', 'shopping', 'subscriptions', 'utilities', 'rent', 'uncategorized'];
+const CATEGORY_ICONS = {
+  rent: Home,
+  food: Utensils,
+  transport: Car,
+  shopping: ShoppingBag,
+  subscriptions: Smartphone,
+  utilities: Zap,
+  uncategorized: Package,
+  income: DollarSign,
+};
+
+const ALL_CATEGORIES = ['rent', 'food', 'transport', 'shopping', 'subscriptions', 'utilities', 'uncategorized'];
 
 const EMPTY_FORM = { category: 'food', limit: '' };
 
 export default function BudgetsPage() {
   const toast = useToast();
+  const { currency, config, convert, symbol } = useCurrency();
   const [budgets, setBudgets] = useState(() => getBudgets());
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -45,7 +61,7 @@ export default function BudgetsPage() {
 
   const openEdit = (budget) => {
     setEditBudget(budget);
-    setForm({ category: budget.category, limit: String(budget.limit) });
+    setForm({ category: budget.category, limit: String(convert(budget.limit)) });
     setErrors({});
     setModalOpen(true);
   };
@@ -60,7 +76,8 @@ export default function BudgetsPage() {
 
   const handleSave = () => {
     if (!validate()) return;
-    const data = { category: form.category, limit: parseFloat(form.limit), period: 'monthly' };
+    const toInr = (val) => currency === 'INR' ? val : Math.round(val / config.rateFromINR);
+    const data = { category: form.category, limit: toInr(parseFloat(form.limit)), period: 'monthly' };
     if (editBudget) {
       updateBudget(editBudget.id, data);
       toast.success('Budget updated!');
@@ -91,100 +108,110 @@ export default function BudgetsPage() {
   const categoryOptions = (editBudget
     ? ALL_CATEGORIES
     : availableCats
-  ).map(c => ({ value: c, label: `${categoryIcons[c] || '📦'} ${categoryLabels[c] || c}` }));
+  ).map(c => ({ value: c, label: categoryLabels[c] || c }));
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      {/* Summary */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+      {/* Summary strip */}
       {budgets.length > 0 && (
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
           {[
-            { label: 'Total Budget', value: formatCurrency(totalBudget), color: '#0F1B2D' },
-            { label: 'Spent (Oct)', value: formatCurrency(totalSpent), color: '#B42318' },
-            { label: 'Remaining', value: formatCurrency(Math.max(0, totalRemaining)), color: totalRemaining >= 0 ? '#07704A' : '#B42318' },
+            { label: 'Total Budgeted', value: formatCurrency(totalBudget), color: '#0F172A' },
+            { label: 'Spent (October)', value: formatCurrency(totalSpent), color: totalSpent > totalBudget ? '#B91C1C' : '#4D7C0F' },
+            { label: 'Buffer Remaining', value: formatCurrency(Math.max(0, totalRemaining)), color: totalRemaining >= 0 ? '#15803D' : '#B91C1C' },
           ].map(item => (
-            <Card key={item.label} style={{ flex: 1, minWidth: 130, textAlign: 'center', padding: 14 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: '#52607A', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{item.label}</div>
-              <div style={{ fontSize: 20, fontWeight: 800, color: item.color }}>{item.value}</div>
+            <Card key={item.label} style={{ flex: 1, minWidth: 140, textAlign: 'center', padding: 14 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 4 }}>
+                {item.label}
+              </div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: item.color, fontVariantNumeric: 'tabular-nums' }}>
+                {item.value}
+              </div>
             </Card>
           ))}
         </div>
       )}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <p style={{ fontSize: 13, color: '#52607A' }}>Budgets for October 2026</p>
+        <p style={{ fontSize: 13, color: '#64748B', margin: 0 }}>Category allocation for October 2026</p>
         <Button onClick={openCreate} icon={<Plus size={15} />} disabled={availableCats.length === 0}>
-          Add Budget
+          Add Category Limit
         </Button>
       </div>
 
       {budgets.length === 0 ? (
-        <EmptyState icon="📊" title="No budgets set" message="Create spending budgets to track how much you're allocating to each category." action={openCreate} actionLabel="Create First Budget" />
+        <EmptyState icon={<BarChart3 size={24} />} title="No budget limits configured" message="Set category limits to track against actual monthly transactions." action={openCreate} actionLabel="Create Budget" />
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {budgets.map(budget => {
             const spent = spendMap[budget.category] || 0;
             const remaining = budget.limit - spent;
             const pct = (spent / budget.limit) * 100;
             const isOver = pct >= 90;
             const isWarning = pct >= 70 && pct < 90;
-            const statusColor = isOver ? '#B42318' : isWarning ? '#8F5200' : '#07704A';
+            const statusColor = isOver ? '#B91C1C' : isWarning ? '#B45309' : '#15803D';
+            const CategoryIcon = CATEGORY_ICONS[budget.category] || Package;
 
             return (
               <Card key={budget.id}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-                  {/* Icon */}
-                  <div style={{ width: 42, height: 42, borderRadius: 10, background: '#F5F7FA', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
-                    {categoryIcons[budget.category] || '📦'}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
+                  <div style={{ width: 42, height: 42, borderRadius: 10, background: '#F8F7F4', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4D7C0F', flexShrink: 0 }}>
+                    <CategoryIcon size={20} />
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: 14, fontWeight: 700, color: '#0F1B2D' }}>
+                      <span style={{ fontSize: 15, fontWeight: 700, color: '#0F172A', letterSpacing: '-0.01em' }}>
                         {categoryLabels[budget.category] || budget.category}
                       </span>
-                      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                        {isOver && <AlertCircle size={14} style={{ color: '#B42318' }} />}
-                        <button onClick={() => openEdit(budget)} style={{ background: 'none', border: 'none', color: '#52607A', cursor: 'pointer', padding: 4 }}>
-                          <Edit2 size={13} />
+                      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                        {isOver && <AlertCircle size={15} style={{ color: '#B91C1C' }} />}
+                        <button onClick={() => openEdit(budget)} style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', padding: 5, borderRadius: 6 }}>
+                          <Edit2 size={14} />
                         </button>
-                        <button onClick={() => setDeleteTarget(budget)} style={{ background: 'none', border: 'none', color: '#B42318', cursor: 'pointer', padding: 4 }}>
-                          <Trash2 size={13} />
+                        <button onClick={() => setDeleteTarget(budget)} style={{ background: 'none', border: 'none', color: '#B91C1C', cursor: 'pointer', padding: 5, borderRadius: 6 }}>
+                          <Trash2 size={14} />
                         </button>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: 12, marginBottom: 10, flexWrap: 'wrap' }}>
-                  <div style={{ flex: 1, minWidth: 80 }}>
-                    <div style={{ fontSize: 10, color: '#52607A', fontWeight: 600, marginBottom: 2 }}>BUDGET</div>
-                    <div style={{ fontSize: 16, fontWeight: 800, color: '#0F1B2D' }}>{formatCurrency(budget.limit)}</div>
+                <div style={{ display: 'flex', gap: 16, marginBottom: 10, flexWrap: 'wrap' }}>
+                  <div style={{ flex: 1, minWidth: 90 }}>
+                    <div style={{ fontSize: 11, color: '#64748B', fontWeight: 600, marginBottom: 2 }}>LIMIT</div>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', fontVariantNumeric: 'tabular-nums' }}>
+                      {formatCurrency(budget.limit)}
+                    </div>
                   </div>
-                  <div style={{ flex: 1, minWidth: 80 }}>
-                    <div style={{ fontSize: 10, color: '#52607A', fontWeight: 600, marginBottom: 2 }}>SPENT</div>
-                    <div style={{ fontSize: 16, fontWeight: 800, color: statusColor }}>{formatCurrency(spent)}</div>
+                  <div style={{ flex: 1, minWidth: 90 }}>
+                    <div style={{ fontSize: 11, color: '#64748B', fontWeight: 600, marginBottom: 2 }}>SPENT</div>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: statusColor, fontVariantNumeric: 'tabular-nums' }}>
+                      {formatCurrency(spent)}
+                    </div>
                   </div>
-                  <div style={{ flex: 1, minWidth: 80 }}>
-                    <div style={{ fontSize: 10, color: '#52607A', fontWeight: 600, marginBottom: 2 }}>REMAINING</div>
-                    <div style={{ fontSize: 16, fontWeight: 800, color: remaining < 0 ? '#B42318' : '#0F1B2D' }}>
+                  <div style={{ flex: 1, minWidth: 90 }}>
+                    <div style={{ fontSize: 11, color: '#64748B', fontWeight: 600, marginBottom: 2 }}>AVAILABLE</div>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: remaining < 0 ? '#B91C1C' : '#0F172A', fontVariantNumeric: 'tabular-nums' }}>
                       {remaining < 0 ? `-${formatCurrency(Math.abs(remaining))}` : formatCurrency(remaining)}
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-                    <span style={{ fontSize: 18, fontWeight: 800, color: statusColor }}>{pct.toFixed(0)}%</span>
+                    <span style={{ fontSize: 18, fontWeight: 800, color: statusColor, fontVariantNumeric: 'tabular-nums' }}>
+                      {pct.toFixed(0)}%
+                    </span>
                   </div>
                 </div>
 
                 <ProgressBar value={spent} max={budget.limit} height={8} />
 
                 {isOver && (
-                  <p style={{ fontSize: 11, color: '#B42318', fontWeight: 600, marginTop: 6 }}>
-                    ⚠️ Over budget by {formatCurrency(Math.abs(remaining))}
+                  <p style={{ fontSize: 12, color: '#B91C1C', fontWeight: 600, marginTop: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
+                    <AlertTriangle size={13} /> Over budget ceiling by {formatCurrency(Math.abs(remaining))}
                   </p>
                 )}
                 {isWarning && !isOver && (
-                  <p style={{ fontSize: 11, color: '#8F5200', fontWeight: 600, marginTop: 6 }}>
-                    🔔 Approaching budget limit — {formatCurrency(remaining)} remaining
+                  <p style={{ fontSize: 12, color: '#B45309', fontWeight: 600, marginTop: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
+                    <Bell size={13} /> Approaching allocation limit — {formatCurrency(remaining)} remaining
                   </p>
                 )}
               </Card>
@@ -197,8 +224,8 @@ export default function BudgetsPage() {
       <Modal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={editBudget ? 'Edit Budget' : 'Add Budget Category'}
-        width={400}
+        title={editBudget ? 'Edit Budget' : 'Add Category Limit'}
+        width={420}
         footer={
           <>
             <Button variant="secondary" onClick={() => setModalOpen(false)}>Cancel</Button>
@@ -216,15 +243,15 @@ export default function BudgetsPage() {
             disabled={!!editBudget}
           />
           <Input
-            label="Monthly Budget Limit"
+            label="Monthly Limit"
             type="number"
             value={form.limit}
             onChange={set('limit')}
-            prefix="₹"
-            placeholder="e.g. 8000"
+            prefix={symbol}
+            placeholder={currency === 'INR' ? 'e.g. 8000' : 'e.g. 100'}
             required
             error={errors.limit}
-            helpText="Set a spending limit for this category per month."
+            helpText="Maximum monthly allocation for this expense category."
           />
         </div>
       </Modal>
@@ -233,8 +260,8 @@ export default function BudgetsPage() {
         open={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
         onConfirm={() => handleDelete(deleteTarget?.id)}
-        title="Remove Budget"
-        message={`Remove the ${categoryLabels[deleteTarget?.category] || ''} budget? You can always add it back later.`}
+        title="Remove Budget Category"
+        message={`Remove the ${categoryLabels[deleteTarget?.category] || ''} budget? You can reconfigure it anytime.`}
         confirmLabel="Remove"
         danger
       />

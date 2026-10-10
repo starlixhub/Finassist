@@ -31,7 +31,7 @@ const DEFAULT_DATA = {
     { id: 15, date: '2026-10-15', description: 'Myntra Clothing Fashion Sale',    amount: -2450,  category: 'shopping',      type: 'expense' },
     { id: 16, date: '2026-10-16', description: 'Water Bill Municipal Corp',       amount: -350,   category: 'utilities',     type: 'expense' },
     { id: 17, date: '2026-10-17', description: 'Metro Rail Smart Card Recharge',  amount: -500,   category: 'transport',     type: 'expense' },
-    { id: 18, date: '2026-10-18', description: 'Emergency Laptop Motherboard Repair', amount: -28500, category: 'uncategorized', type: 'expense' },
+    { id: 18, date: '2026-10-18', description: 'Emergency Laptop Motherboard Repair', amount: -28500, category: 'repairs',       type: 'expense' },
     { id: 19, date: '2026-10-19', description: 'Amazon Prime Video Annual',       amount: -1499,  category: 'subscriptions', type: 'expense' },
     { id: 20, date: '2026-10-20', description: 'Blinkit Groceries Quick Delivery',amount: -780,   category: 'food',          type: 'expense' },
     { id: 21, date: '2026-10-21', description: 'Jio Mobile Recharge',             amount: -299,   category: 'utilities',     type: 'expense' },

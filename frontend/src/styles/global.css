@@ -1,45 +1,156 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+/* Apple-Grade Fintech Typography, Reset & Semantic Colors */
+@import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  --bg-app: #F5F7FA;
+  /* Surface and Backgrounds (Light Cream #F5F2EB, Pure Flat Cards #FFFFFF) */
+  --bg-app: #F5F2EB;
   --bg-card: #FFFFFF;
-  --text-primary: #0F1B2D;
-  --text-secondary: #52607A;
-  --border: #D9E0E9;
-  --teal: #0B6E6E;
-  --teal-soft: #E2F1F0;
-  --success: #07704A;
-  --warning: #8F5200;
-  --danger: #B42318;
-  --sidebar-bg: #0F1B2D;
-  --sidebar-active: #0B6E6E;
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --shadow-sm: 0 1px 3px rgba(15,27,45,0.08);
-  --shadow-md: 0 4px 12px rgba(15,27,45,0.12);
+  --bg-card-subtle: #FAF7F0;
+  --bg-card-active: #EDE9DF;
+
+  /* Text & Labels (Dark Green & Slate Contrast) */
+  --text-primary: #1E2E20;
+  --text-secondary: #2D5A34;
+  --text-tertiary: #4E6E53;
+  --text-muted: #7E9B83;
+
+  /* Hairline Crisp Flat Borders */
+  --border: #E5E0D5;
+  --border-strong: #D5CEBE;
+  --border-focus: #4A9C5D;
+
+  /* Official Brand Identity (Logo Green Harmonized Palette) */
+  --brand-green: #4A9C5D;        /* Solid bright green */
+  --brand-lime: #4A9C5D;         /* Vibrant green accent */
+  --brand-lime-light: #5DB571;   /* Bright green highlight */
+  --brand-soft-bg: #E8F0E9;      /* Pastel sage background */
+  --brand-soft-border: #B0CDB4;  /* Soft muted green border */
+  --brand-dark: #2D5A34;         /* Dark green for headers / labels */
+
+  /* Semantic Financial Indicators */
+  --success: #2D5A34;            /* Positive cash flow / income */
+  --success-soft: #E8F0E9;
+  --warning: #B45309;            /* Amber alert / caution */
+  --warning-soft: #FEF3C7;
+  --danger: #B91C1C;             /* Budget overrun / shortage */
+  --danger-soft: #FEE2E2;
+
+  /* Navigation Sidebar (Pastel Sage Green Palette) */
+  --sidebar-bg: #E8F0E9;         /* Pastel sage green background */
+  --sidebar-border: #D3E2D5;
+  --sidebar-text: #2D5A34;       /* Dark green sidebar text */
+  --sidebar-text-muted: #B0CDB4; /* Soft muted green */
+  --sidebar-text-active: #FFFFFF;
+  --sidebar-active-bg: #4A9C5D;  /* Solid green active pill */
+  --sidebar-active-accent: #FFFFFF;
+
+  /* Apple Radii Scale */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+
+  /* Clean Minimal Flat Design - Zero Shadows */
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+/* Apple HIG Dark Mode Palette */
+[data-theme='dark'] {
+  --bg-app: #0B0F14;
+  --bg-card: #151D24;
+  --bg-card-subtle: #1C2630;
+  --bg-card-active: #233140;
 
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --text-primary: #F1F5F9;
+  --text-secondary: #94A3B8;
+  --text-tertiary: #64748B;
+  --text-muted: #475569;
+
+  --border: #233140;
+  --border-strong: #334454;
+  --border-focus: #84CC16;
+
+  --brand-soft-bg: #1E2E1D;
+  --brand-soft-border: #335030;
+
+  --success-soft: #142E1F;
+  --warning-soft: #38240D;
+  --danger-soft: #381414;
+
+  --sidebar-bg: #0E141B;
+  --sidebar-border: #1C2834;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
   background: var(--bg-app);
   color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+               "Public Sans", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   font-size: 14px;
   line-height: 1.5;
+  letter-spacing: -0.011em;
 }
 
-a { color: inherit; text-decoration: none; }
-button { cursor: pointer; font-family: inherit; }
-input, select, textarea { font-family: inherit; }
+/* Tabular numbers for financial precision (Apple HIG Typography) */
+.tabular-nums,
+[data-tabular="true"],
+td,
+.metric-value,
+.currency-figure {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
 
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #b0bcc9; }
+a {
+  color: inherit;
+  text-decoration: none;
+}
 
-:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+button {
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  background: transparent;
+}
+
+input, select, textarea {
+  font-family: inherit;
+}
+
+/* Subtle, clean scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand-lime);
+  outline-offset: 2px;
+}
 
 /* Toast notifications */
 .toast-container {
@@ -53,32 +164,28 @@ input, select, textarea { font-family: inherit; }
 }
 
 .toast {
-  padding: 12px 16px;
-  border-radius: 8px;
+  padding: 12px 18px;
+  border-radius: var(--radius-md);
   font-size: 13px;
-  font-weight: 500;
-  box-shadow: 0 4px 12px rgba(15,27,45,0.15);
-  animation: slideIn 0.2s ease;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  animation: slideIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   align-items: center;
-  gap: 8px;
-  min-width: 240px;
-  max-width: 360px;
+  gap: 10px;
+  min-width: 260px;
+  max-width: 380px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-.toast-success { background: #07704A; color: #fff; }
-.toast-error { background: #B42318; color: #fff; }
-.toast-info { background: #0B6E6E; color: #fff; }
-.toast-warning { background: #8F5200; color: #fff; }
+.toast-success { background: #15803D; color: #FFFFFF; }
+.toast-error   { background: #B91C1C; color: #FFFFFF; }
+.toast-info    { background: #1E3A1A; color: #F7FEE7; border-color: #4D7C0F; }
+.toast-warning { background: #B45309; color: #FFFFFF; }
 
 @keyframes slideIn {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
-
-@keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; transform: translateX(8px); }
+  from { transform: translateY(12px) scale(0.97); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
 }
 
 /* Utility classes */
@@ -97,4 +204,5 @@ input, select, textarea { font-family: inherit; }
 .text-danger { color: var(--danger); }
 .text-warning { color: var(--warning); }
 .text-secondary { color: var(--text-secondary); }
-.text-teal { color: var(--teal); }
+.text-brand { color: var(--brand-green); }
+.text-lime { color: var(--brand-lime); }

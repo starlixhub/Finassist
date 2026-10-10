@@ -168,7 +168,8 @@ def test_predict_new_user_zero_transactions():
     assert data["current_balance"] == 0.0
     assert data["predicted_balance"] == 0.0
     assert data["shortage_predicted"] is False
-    assert data["risk_level"] == "low"
+    assert data["forecast_method"] == "simple_average (insufficient data)"
+    assert data["data_points_used"] == 0
     assert "explanation" in data
     assert len(data["explanation"]) > 0
 
@@ -182,6 +183,8 @@ def test_predict_new_user_zero_transactions():
     assert data["predicted_balance"] == 50000.0
     assert data["shortage_predicted"] is False
     assert data["risk_level"] == "low"
+    assert data["forecast_method"] == "simple_average (insufficient data)"
+    assert data["data_points_used"] == 0
     assert "50,000" in data["explanation"]
 
 

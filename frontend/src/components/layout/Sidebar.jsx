@@ -1,154 +1,254 @@
-// src/components/layout/Sidebar.jsx
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard, ArrowLeftRight, BrainCircuit, Target,
-  PieChart, BarChart2, Settings, LogOut, X,
+  LayoutDashboard,
+  ReceiptText,
+  BotMessageSquare,
+  PiggyBank,
+  PieChart,
+  BarChart3,
+  Settings,
+  X,
+  User
 } from 'lucide-react';
-import { logout } from '../../data/mockData';
-import { useToast } from '../common/Toast';
+import BrandLogo from '../common/BrandLogo';
 
-const NAV_ITEMS = [
-  { to: '/dashboard',    icon: LayoutDashboard, label: 'Dashboard'         },
-  { to: '/transactions', icon: ArrowLeftRight,  label: 'Transactions'      },
-  { to: '/ai-coach',     icon: BrainCircuit,    label: 'AI Coach'          },
-  { to: '/savings',      icon: Target,          label: 'Savings Goals'     },
-  { to: '/budgets',      icon: PieChart,        label: 'Budgets'           },
-  { to: '/reports',      icon: BarChart2,       label: 'Reports'           },
-  { to: '/settings',     icon: Settings,        label: 'Settings'          },
+const CORE_NAV_ITEMS = [
+  { to: '/dashboard',    icon: LayoutDashboard,   label: 'Dashboard'            },
+  { to: '/transactions', icon: ReceiptText,       label: 'Transactions'         },
+  { to: '/ai-coach',     icon: BotMessageSquare,  label: 'Finassist AI Coach'   },
+  { to: '/savings',      icon: PiggyBank,         label: 'Savings Goal & Plan'  },
+];
+
+const ANALYTICS_NAV_ITEMS = [
+  { to: '/budgets',      icon: PieChart,          label: 'Budgets & Limits'     },
+  { to: '/reports',      icon: BarChart3,         label: 'Reports & Analytics'  },
+  { to: '/settings',     icon: Settings,          label: 'Settings & Security'  },
 ];
 
 export default function Sidebar({ user, mobileOpen, onCloseMobile }) {
   const navigate = useNavigate();
-  const toast = useToast();
 
-  const handleSignOut = () => {
-    logout();
-    toast.info('Signed out successfully.');
-    navigate('/login');
-  };
-
-  const initials = (user?.name || 'U').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+  const renderNavLink = ({ to, icon: Icon, label }) => (
+    <NavLink
+      key={to}
+      to={to}
+      onClick={onCloseMobile}
+      style={({ isActive }) => ({
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        padding: '10px 14px',
+        borderRadius: 12,
+        fontSize: 13,
+        fontWeight: isActive ? 700 : 600,
+        color: isActive ? '#FFFFFF' : '#2D5A34',
+        background: isActive ? '#4A9C5D' : 'transparent',
+        transition: 'background 0.15s ease, color 0.15s ease',
+        textDecoration: 'none',
+        boxShadow: 'none',
+        border: 'none',
+      })}
+      onMouseEnter={e => {
+        if (!e.currentTarget.classList.contains('active')) {
+          e.currentTarget.style.color = '#1E3B24';
+          e.currentTarget.style.background = 'rgba(74, 156, 93, 0.12)';
+          const icon = e.currentTarget.querySelector('svg');
+          if (icon) icon.style.color = '#4A9C5D';
+        }
+      }}
+      onMouseLeave={e => {
+        if (!e.currentTarget.classList.contains('active')) {
+          e.currentTarget.style.color = '#2D5A34';
+          e.currentTarget.style.background = 'transparent';
+          const icon = e.currentTarget.querySelector('svg');
+          if (icon) icon.style.color = '#B0CDB4';
+        }
+      }}
+    >
+      {({ isActive }) => (
+        <>
+          <Icon
+            size={18}
+            strokeWidth={isActive ? 2.2 : 2.0}
+            style={{
+              color: isActive ? '#FFFFFF' : '#B0CDB4',
+              flexShrink: 0,
+              transition: 'color 0.15s ease',
+            }}
+          />
+          <span style={{ letterSpacing: '-0.01em' }}>{label}</span>
+        </>
+      )}
+    </NavLink>
+  );
 
   const sidebarContent = (
     <div style={{
-      width: 240, background: '#0F1B2D', height: '100%',
-      display: 'flex', flexDirection: 'column', flexShrink: 0,
+      width: 250,
+      background: '#E8F0E9',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      flexShrink: 0,
+      borderRight: '1px solid #D3E2D5',
+      boxSizing: 'border-box',
     }}>
-      {/* Logo */}
+      {/* Brand Header */}
       <div style={{
-        padding: '20px 20px 16px',
-        borderBottom: '1px solid rgba(255,255,255,0.08)',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '22px 20px 20px',
+        borderBottom: '1px solid #D3E2D5',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        background: '#E8F0E9',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{
-            width: 32, height: 32, borderRadius: 8,
-            background: '#0B6E6E', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 16, fontWeight: 800, color: '#fff', letterSpacing: -1,
-          }}>F</div>
-          <span style={{ fontSize: 16, fontWeight: 800, color: '#fff', letterSpacing: -0.3 }}>
-            Fin<span style={{ color: '#0B6E6E' }}>Assist</span>
-          </span>
-        </div>
+        <BrandLogo size={32} showText={true} textColor="#2D5A34" accentColor="#4A9C5D" />
         {mobileOpen !== undefined && (
           <button
             onClick={onCloseMobile}
-            style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', display: 'flex', padding: 4 }}
+            className="sidebar-mobile-close-btn"
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#2D5A34',
+              cursor: 'pointer',
+              display: 'none',
+              padding: 4,
+              borderRadius: 6,
+            }}
+            aria-label="Close Sidebar"
           >
-            <X size={18} />
+            <X size={18} strokeWidth={2} />
           </button>
         )}
       </div>
 
-      {/* Navigation */}
-      <nav style={{ flex: 1, padding: '12px 0', overflowY: 'auto' }}>
-        {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
-          <NavLink
-            key={to}
-            to={to}
-            onClick={onCloseMobile}
-            style={({ isActive }) => ({
-              display: 'flex', alignItems: 'center', gap: 12,
-              padding: '11px 20px',
-              color: isActive ? '#fff' : 'rgba(255,255,255,0.55)',
-              fontSize: 13, fontWeight: isActive ? 600 : 400,
-              background: isActive ? 'rgba(11,110,110,0.2)' : 'transparent',
-              borderLeft: isActive ? '3px solid #0B6E6E' : '3px solid transparent',
-              textDecoration: 'none',
-              transition: 'all 0.15s',
-              borderRadius: '0 6px 6px 0',
-              margin: '1px 8px 1px 0',
-            })}
-          >
-            {({ isActive }) => (
-              <>
-                <Icon size={17} style={{ flexShrink: 0, color: isActive ? '#0B6E6E' : 'inherit' }} />
-                {label}
-              </>
-            )}
-          </NavLink>
-        ))}
+      {/* Navigation Sections */}
+      <nav style={{ flex: 1, padding: '18px 14px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4 }}>
+        {/* Core Flow */}
+        <div style={{
+          fontSize: 10,
+          fontWeight: 800,
+          color: '#2D5A34',
+          opacity: 0.75,
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
+          padding: '6px 12px 6px',
+        }}>
+          Core Flow
+        </div>
+        {CORE_NAV_ITEMS.map(renderNavLink)}
+
+        {/* Analytics & System */}
+        <div style={{
+          fontSize: 10,
+          fontWeight: 800,
+          color: '#2D5A34',
+          opacity: 0.75,
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
+          padding: '18px 12px 6px',
+        }}>
+          Insights & System
+        </div>
+        {ANALYTICS_NAV_ITEMS.map(renderNavLink)}
       </nav>
 
-      {/* User Footer */}
-      <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-          <div style={{
-            width: 34, height: 34, borderRadius: '50%',
-            background: '#0B6E6E', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 12, fontWeight: 700, color: '#fff', flexShrink: 0,
-          }}>
-            {initials}
-          </div>
-          <div style={{ overflow: 'hidden', minWidth: 0 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {user?.name || 'User'}
-            </div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {user?.email || ''}
-            </div>
-          </div>
-        </div>
+      {/* User Footer Profile */}
+      <div style={{
+        padding: '14px 14px',
+        borderTop: '1px solid #D3E2D5',
+        background: '#E8F0E9',
+      }}>
         <button
-          onClick={handleSignOut}
+          onClick={() => navigate('/settings')}
+          title="Account Profile & Settings"
+          aria-label="Account Profile & Settings"
           style={{
-            display: 'flex', alignItems: 'center', gap: 8,
-            width: '100%', padding: '7px 10px', borderRadius: 6,
-            background: 'rgba(180,35,24,0.12)', border: '1px solid rgba(180,35,24,0.25)',
-            color: '#ff8a80', fontSize: 12, fontWeight: 600, cursor: 'pointer',
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            padding: '8px 12px',
+            borderRadius: 10,
+            background: '#FFFFFF',
+            border: '1px solid #D3E2D5',
+            color: '#2D5A34',
+            cursor: 'pointer',
+            transition: 'background 0.15s ease, border-color 0.15s ease',
+            textAlign: 'left',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.background = '#F6FAF7';
+            e.currentTarget.style.borderColor = '#B0CDB4';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.background = '#FFFFFF';
+            e.currentTarget.style.borderColor = '#D3E2D5';
           }}
         >
-          <LogOut size={14} />
-          Sign Out
+          <div style={{
+            width: 28,
+            height: 28,
+            borderRadius: '50%',
+            background: '#4A9C5D',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#FFFFFF',
+            flexShrink: 0,
+          }}>
+            <User size={15} strokeWidth={2.2} />
+          </div>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#2D5A34', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {user?.name || 'Kartik Sharma'}
+            </div>
+            <div style={{ fontSize: 10, color: '#2D5A34', opacity: 0.75, fontWeight: 500 }}>
+              Settings & Prefs
+            </div>
+          </div>
         </button>
       </div>
     </div>
   );
 
-  // Mobile overlay
-  if (mobileOpen !== undefined) {
-    return (
-      <>
-        {mobileOpen && (
-          <div
-            style={{
-              position: 'fixed', inset: 0, background: 'rgba(15,27,45,0.5)',
-              zIndex: 998, display: 'flex',
-            }}
-            onClick={onCloseMobile}
-          />
-        )}
-        <div style={{
-          position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 999,
-          transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
-          transition: 'transform 0.25s ease',
-        }}>
-          {sidebarContent}
-        </div>
-      </>
-    );
-  }
+  return (
+    <>
+      {/* Desktop Persistent Sidebar */}
+      <div style={{ display: 'none' }} className="desktop-sidebar-container">
+        {sidebarContent}
+      </div>
 
-  return sidebarContent;
+      {/* Mobile Drawer Overlay */}
+      {mobileOpen && (
+        <div
+          onClick={onCloseMobile}
+          className="mobile-sidebar-drawer"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 999,
+            background: 'rgba(15, 23, 42, 0.65)',
+            display: 'flex',
+          }}
+        >
+          <div onClick={e => e.stopPropagation()} style={{ height: '100%' }}>
+            {sidebarContent}
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @media (min-width: 769px) {
+          .desktop-sidebar-container { display: flex !important; }
+          .mobile-sidebar-drawer { display: none !important; }
+        }
+        @media (max-width: 768px) {
+          .sidebar-mobile-close-btn { display: flex !important; }
+        }
+      `}</style>
+    </>
+  );
 }

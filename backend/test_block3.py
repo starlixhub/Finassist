@@ -328,7 +328,7 @@ def test_api_demo_data_end_to_end():
     # 7. Test Infeasible Goal
     # Set ambitious goal: Target 100,000 in 5 months -> required_monthly_savings = 20,000
     # Net available = 11,470 < 20,000 -> feasible = False, gap = 8,530
-    res = client.post("/savings-goal", json={"user_id": user_id, "target_amount": 100000, "target_months": 5))
+    res = client.post("/savings-goal", json={"user_id": user_id, "target_amount": 100000, "target_months": 5})
     assert res.status_code == 200
     infeasible_goal = res.json()
     assert infeasible_goal["required_monthly_savings"] == 20000.0
