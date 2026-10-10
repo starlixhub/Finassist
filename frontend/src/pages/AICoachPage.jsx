@@ -3,7 +3,7 @@ import {
   AlertTriangle, TrendingUp, ChevronDown, ChevronUp, Info,
   Sparkles, Send, Bot, User, RefreshCw, Lightbulb, ArrowRight,
   ShieldCheck, HelpCircle, BrainCircuit, Loader2, Utensils, Home,
-  ShoppingBag, Smartphone, Plus, History, Trash2, Clock
+  ShoppingBag, Smartphone, Plus, History, Trash2, Clock, KeyRound
 } from 'lucide-react';
 import Card from '../components/common/Card';
 import { PriorityBadge } from '../components/common/Badge';
@@ -248,30 +248,38 @@ export default function AICoachPage() {
   const generateAIResponse = (query) => {
     const q = query.toLowerCase();
 
+    if (q.includes('hi') || q.includes('hello') || q.includes('hey')) {
+      return `Hello! I am your Finassist AI Coach. Here is your current financial baseline for October 2026: Take-home income is ${formatCurrency(income)}, total spend is ${formatCurrency(octTotal)}, and net operating surplus is ${formatCurrency(predictedBalance)}.\n\nYou can ask me how to optimize discretionary categories, check if you can afford a new purchase, analyze your savings rate, or review your runway!`;
+    }
+
     if (q.includes('october') || q.includes('high') || q.includes('anomaly') || q.includes('repair') || q.includes('laptop')) {
       return `Your October expenditure of ${formatCurrency(octTotal)} is primarily elevated due to a single outlier: **Emergency Laptop Motherboard Repair** of ${formatCurrency(28500)} on October 5th (+6767% over typical uncategorized spend).\n\nIf we exclude this one-off emergency, your regular routine expenditure sits at ${formatCurrency(octTotal - 28500)} (${(((octTotal - 28500)/income)*100).toFixed(1)}% of income), which remains within healthy limits.`;
     }
 
-    if (q.includes('savings rate') || q.includes('20%') || q.includes('increase') || q.includes('rate')) {
+    if (q.includes('savings rate') || q.includes('20%') || q.includes('increase') || q.includes('rate') || q.includes('save') || q.includes('saving')) {
       const neededFor20 = income * 0.20;
       const currentSurplus = predictedBalance;
       const difference = neededFor20 - currentSurplus;
       return `To achieve a **20% savings rate** (${formatCurrency(neededFor20)}/month), you need an additional surplus of **${formatCurrency(Math.max(0, difference))}**.\n\nHere is your tailored roadmap:\n1. **Food Delivery**: Trim 20% on restaurant orders to reclaim ~${formatCurrency((catMap.food || 3410) * 0.20)}/month.\n2. **Subscriptions**: Rotate entertainment services (Netflix ${formatCurrency(649)}, Prime) to free ~${formatCurrency(649)}/month.\n3. **Discretionary Shopping**: Place a ${formatCurrency(5000)} ceiling on impulse purchases.`;
     }
 
-    if (q.includes('afford') || q.includes('trip') || q.includes('15,000') || q.includes('vacation')) {
-      return `Let's assess that against your runway:\n\n• **Monthly Take-Home**: ${formatCurrency(income)}\n• **Routine Outflow**: ~${formatCurrency(35000)} (excluding one-off emergencies)\n• **Current Net Surplus**: ${formatCurrency(predictedBalance)}\n• **Emergency Fund Balance**: ${formatCurrency(savingsGoals[0]?.savedAmount || 60000)}\n\n**Verdict**: ✅ **Yes, you can afford a ${formatCurrency(15000)} trip next month**, provided you don't encounter another unexpected repair and maintain your rent ceiling (${formatCurrency(catMap.rent || 15000)}). I recommend funding it directly from November's routine cash buffer rather than tapping your Emergency Fund.`;
+    if (q.includes('afford') || q.includes('trip') || q.includes('15,000') || q.includes('vacation') || q.includes('buy') || q.includes('can i')) {
+      return `Let's assess that against your runway:\n\n• **Monthly Take-Home**: ${formatCurrency(income)}\n• **Routine Outflow**: ~${formatCurrency(35000)} (excluding one-off emergencies)\n• **Current Net Surplus**: ${formatCurrency(predictedBalance)}\n• **Emergency Fund Balance**: ${formatCurrency(savingsGoals[0]?.savedAmount || 60000)}\n\n**Verdict**: ✅ **You have positive cashflow**, provided you don't encounter another unexpected repair and maintain your rent ceiling (${formatCurrency(catMap.rent || 15000)}). I recommend funding it directly from November's routine cash buffer rather than tapping your Emergency Fund.`;
     }
 
     if (q.includes('cut') || q.includes('food') || q.includes('dining') || q.includes('restaurant')) {
       return `Based on your October food spend (${formatCurrency(catMap.food || 3410)}):\n\n1. **Batch Meal Planning**: Shifting 2 weekend takeaway dinners to home cooking reclaims approx ${formatCurrency(1200)}/month.\n2. **Subscription Grocery Deliveries**: Avoid small cart delivery fees by ordering essentials once weekly.\n3. **Coffee & Snacks**: Consolidating café stops frees ~${formatCurrency(800)}/month toward your Emergency Fund.`;
     }
 
-    if (q.includes('runway') || q.includes('score') || q.includes('safety') || q.includes('risk')) {
+    if (q.includes('invest') || q.includes('sip') || q.includes('mutual fund') || q.includes('stock')) {
+      return `**Investment Allocation Recommendation**:\n\n1. **Safety First**: Maintain a minimum 3-month living expense buffer (${formatCurrency(income * 3)}) in high-yield liquid instruments before deploying funds into equities.\n2. **Target Savings Rule (50/30/20)**: Allocate 50% to necessities, 30% to lifestyle, and 20% (${formatCurrency(income * 0.2)}) to automated index funds or SIPs.\n3. **Current Capacity**: Your monthly surplus of ${formatCurrency(predictedBalance)} provides immediate capacity to start or augment recurring investments.`;
+    }
+
+    if (q.includes('runway') || q.includes('score') || q.includes('safety') || q.includes('risk') || q.includes('emergency')) {
       return `**Financial Runway & Health Summary**:\n\n• **Risk Assessment**: **${riskLevel} Risk** for October (due to the motherboard repair amortized in current cycle).\n• **Liquidity Buffer**: ${formatCurrency(predictedBalance)} surplus remains positive.\n• **Emergency Reserve**: ${formatCurrency(savingsGoals[0]?.savedAmount || 60000)} / ${formatCurrency(savingsGoals[0]?.targetAmount || 120000)} (50% funded, covering ~2 months of essential living costs).\n• **Recommendations**: Resume automatic deposit of ${formatCurrency(10000)} to the Emergency Fund once November salary credits.`;
     }
 
-    return `I've analyzed your financial situation against your profile. You take home ${formatCurrency(income)} per month, carry a housing commitment of ${formatCurrency(catMap.rent || 15000)} (${(((catMap.rent || 15000)/income)*100).toFixed(1)}%), and currently hold ${formatCurrency(savingsGoals[0]?.savedAmount || 60000)} in savings reserves.\n\nCould you elaborate on the specific area you'd like guidance on? You can ask about budgeting limits, savings targets, investment buffers, or upcoming large purchases!`;
+    return `Analyzing your query against your live financial records:\n\n• **Take-Home Income**: ${formatCurrency(income)}\n• **Total Outflow**: ${formatCurrency(octTotal)}\n• **Net Operating Surplus**: ${formatCurrency(predictedBalance)}\n\nBased on your profile, your core cashflow is positive. Would you like specific guidance on adjusting your dining budget, setting category spending caps, or planning for your savings goals?`;
   };
 
   // --- Gemini Model Selector State ---
@@ -572,6 +580,30 @@ export default function AICoachPage() {
                   {chatSessions.length}
                 </span>
               </button>
+
+              {/* Custom Gemini Key Button */}
+              <button
+                onClick={() => setShowKeyModal(true)}
+                title="Configure Google Gemini API Key"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 5,
+                  background: customKeyInput ? '#E8F0E9' : '#FFFFFF',
+                  border: `1px solid ${customKeyInput ? '#4A9C5D' : '#D3E2D5'}`,
+                  borderRadius: 8,
+                  padding: '6px 12px',
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: '#2D5A34',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                  boxShadow: 'none',
+                }}
+              >
+                <KeyRound size={14} style={{ color: '#4A9C5D' }} />
+                <span>{customKeyInput ? 'Key Saved' : 'Set API Key'}</span>
+              </button>
             </div>
           </div>
 
@@ -781,6 +813,109 @@ export default function AICoachPage() {
                     }}
                   >
                     Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* API Key Config Modal */}
+          {showKeyModal && (
+            <div
+              style={{
+                position: 'fixed',
+                inset: 0,
+                zIndex: 9999,
+                background: 'rgba(15, 23, 42, 0.45)',
+                backdropFilter: 'blur(3px)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 16,
+                animation: 'fadeIn 0.15s ease-out',
+              }}
+              onClick={() => setShowKeyModal(false)}
+            >
+              <div
+                style={{
+                  background: '#FFFFFF',
+                  borderRadius: 14,
+                  border: '1px solid #D3E2D5',
+                  width: 440,
+                  maxWidth: '100%',
+                  boxShadow: 'none',
+                  padding: 22,
+                }}
+                onClick={e => e.stopPropagation()}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <KeyRound size={18} style={{ color: '#2D5A34' }} />
+                    <h3 style={{ fontSize: 16, fontWeight: 700, color: '#2D5A34' }}>Google Gemini API Key</h3>
+                  </div>
+                  <button onClick={() => setShowKeyModal(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#64748B', fontSize: 16 }}>✕</button>
+                </div>
+                <p style={{ fontSize: 13, color: '#4E6E53', marginBottom: 16, lineHeight: 1.5 }}>
+                  Enter your free personal Gemini API key from <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" style={{ color: '#4A9C5D', textDecoration: 'underline', fontWeight: 600 }}>Google AI Studio</a> for unlimited live model responses without shared demo quota limits.
+                </p>
+                <input
+                  type="password"
+                  placeholder="Paste AIzaSy... key here"
+                  value={customKeyInput}
+                  onChange={e => setCustomKeyInput(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: 8,
+                    border: '1px solid #CBD5E1',
+                    fontSize: 13,
+                    fontFamily: 'monospace',
+                    marginBottom: 16,
+                    boxSizing: 'border-box',
+                    outline: 'none',
+                  }}
+                />
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+                  {customKeyInput && (
+                    <button
+                      onClick={() => {
+                        localStorage.removeItem('finassist_gemini_key');
+                        setCustomKeyInput('');
+                        setShowKeyModal(false);
+                      }}
+                      style={{
+                        padding: '8px 14px',
+                        borderRadius: 8,
+                        border: '1px solid #FCA5A5',
+                        background: '#FEF2F2',
+                        color: '#B91C1C',
+                        fontWeight: 600,
+                        fontSize: 12,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Clear Key
+                    </button>
+                  )}
+                  <button
+                    onClick={() => {
+                      if (customKeyInput.trim()) {
+                        localStorage.setItem('finassist_gemini_key', customKeyInput.trim());
+                      }
+                      setShowKeyModal(false);
+                    }}
+                    style={{
+                      padding: '8px 18px',
+                      borderRadius: 8,
+                      border: 'none',
+                      background: '#4A9C5D',
+                      color: '#FFFFFF',
+                      fontWeight: 700,
+                      fontSize: 13,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Save Key
                   </button>
                 </div>
               </div>
