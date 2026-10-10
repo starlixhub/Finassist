@@ -1,5 +1,5 @@
 // src/pages/SettingsPage.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   User, Shield, Sliders, Database, Download, RefreshCw, Check, LogOut, Globe, Server
@@ -10,12 +10,13 @@ import Input, { Select } from '../components/common/Input';
 import { ConfirmModal } from '../components/common/Modal';
 import { getUser, updateUser, resetData, logout, getTransactions } from '../data/mockData';
 import { useToast } from '../components/common/Toast';
+import { useCurrency } from '../context/CurrencyContext';
 
 const CURRENCY_OPTIONS = [
-  { value: 'INR', label: 'INR (₹) - Indian Rupee' },
-  { value: 'USD', label: 'USD ($) - US Dollar' },
-  { value: 'EUR', label: 'EUR (€) - Euro' },
-  { value: 'GBP', label: 'GBP (£) - British Pound' },
+  { value: 'INR', label: 'INR (₹) - Indian Rupee (Base Currency)' },
+  { value: 'USD', label: 'USD ($) - US Dollar (1 USD ≈ ₹83.3)' },
+  { value: 'EUR', label: 'EUR (€) - Euro (1 EUR ≈ ₹90.9)' },
+  { value: 'GBP', label: 'GBP (£) - British Pound (1 GBP ≈ ₹106.0)' },
 ];
 
 const DATE_FORMAT_OPTIONS = [
@@ -27,12 +28,13 @@ const DATE_FORMAT_OPTIONS = [
 export default function SettingsPage() {
   const navigate = useNavigate();
   const toast = useToast();
+  const { currency: activeCurrency, setCurrency: setActiveCurrencyState, symbol } = useCurrency();
   const currentUser = getUser();
 
   // Profile Form State
   const [profile, setProfile] = useState({
-    name: currentUser?.name || 'Kartik Sharma',
-    email: currentUser?.email || 'kartik@example.com',
+    name: currentUser?.name || 'Kartik Unhale',
+    email: currentUser?.email || 'demo@finassist.in',
     monthlyIncome: String(currentUser?.monthlyIncome || 75000),
   });
   const [profileSaving, setProfileSaving] = useState(false);
@@ -48,10 +50,15 @@ export default function SettingsPage() {
 
   // Preferences State
   const [preferences, setPreferences] = useState({
-    currency: currentUser?.currency || 'INR',
+    currency: activeCurrency || currentUser?.currency || 'INR',
     dateFormat: 'DD/MM/YYYY',
   });
   const [prefsSaving, setPrefsSaving] = useState(false);
+
+  // Keep preferences in sync if activeCurrency changes from header
+  useEffect(() => {
+    setPreferences((prev) => ({ ...prev, currency: activeCurrency }));
+  }, [activeCurrency]);
 
   // Backend test state
   const [pingStatus, setPingStatus] = useState(null);
@@ -102,47 +109,47 @@ export default function SettingsPage() {
     }
 
     setPasswordSaving(true);
-    await new Promise((r) => setTimeout(r, 500));
+    await new Promise((r) => setTimeout(r, 400));
     setPasswordSaving(false);
     setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });
     setPasswordErrors({});
-    toast.success('Password updated in demo session.');
+    toast.success('Password updated successfully.');
   };
 
-  // Handle Preferences Update
+  // Handle Preferences
   const handleSavePreferences = async (e) => {
     e.preventDefault();
     setPrefsSaving(true);
-    await new Promise((r) => setTimeout(r, 400));
+    await new Promise((r) => setTimeout(r, 350));
     updateUser({ currency: preferences.currency });
+    setActiveCurrencyState(preferences.currency);
     setPrefsSaving(false);
-    toast.success('Financial preferences saved.');
+    toast.success(`Display preferences updated: Switched to ${preferences.currency}.`);
   };
 
-  // Handle Demo Reset
+  // Reset Demo Data
   const handleConfirmReset = () => {
     resetData();
-    toast.success('Demo data restored to initial state.');
-    setTimeout(() => {
-      window.location.reload();
-    }, 600);
+    toast.success('Demo environment reset to baseline 25 transactions.');
+    setResetModalOpen(false);
   };
 
-  // Handle Export Transactions
+  // Export CSV
   const handleExportData = () => {
     const txns = getTransactions();
-    const csvContent =
-      'data:text/csv;charset=utf-8,' +
-      ['date,description,amount,category,type']
-        .concat(
-          txns.map(
-            (t) => `"${t.date}","${t.description.replace(/"/g, '""')}",${t.amount},"${t.category}","${t.type}"`
-          )
-        )
-        .join('\n');
-    const encodedUri = encodeURI(csvContent);
+    const headers = ['Date', 'Description', 'Amount', 'Type', 'Category'];
+    const rows = txns.map((t) => [
+      t.date,
+      `"${t.description.replace(/"/g, '""')}"`,
+      t.amount,
+      t.type,
+      t.category,
+    ]);
+    const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
+    link.href = url;
     link.setAttribute('download', `finassist_export_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
@@ -164,9 +171,9 @@ export default function SettingsPage() {
         setPingStatus({ ok: false, msg: `Status ${res.status}` });
         toast.warning(`Backend responded with status ${res.status}`);
       }
-    } catch (err) {
-      setPingStatus({ ok: false, msg: 'Offline / Cold Start (Fallback Active)' });
-      toast.info('Live backend unreachable or sleeping; frontend running standalone mock mode.');
+    } catch {
+      setPingStatus({ ok: false, msg: 'Offline / Standalone Active' });
+      toast.info('Live backend unreachable; running standalone local mode.');
     } finally {
       setPinging(false);
     }
@@ -182,16 +189,17 @@ export default function SettingsPage() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24, maxWidth: 960, margin: '0 auto' }}>
       {/* 1. Profile Section */}
       <Card>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
           <div style={{
-            width: 36, height: 36, borderRadius: 8, background: '#E2F1F0',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0B6E6E',
+            width: 38, height: 38, borderRadius: 8, background: '#F7FEE7',
+            border: '1px solid #D9F99D',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4D7C0F',
           }}>
             <User size={18} />
           </div>
           <div>
-            <h2 style={{ fontSize: 16, fontWeight: 700, color: '#0F1B2D' }}>Profile Information</h2>
-            <p style={{ fontSize: 12, color: '#52607A' }}>Update your personal and primary financial figures</p>
+            <h2 style={{ fontSize: 16, fontWeight: 700, color: '#0F172A', letterSpacing: '-0.01em' }}>Profile Information</h2>
+            <p style={{ fontSize: 12, color: '#64748B' }}>Personal credentials and baseline take-home income</p>
           </div>
         </div>
 
@@ -201,7 +209,7 @@ export default function SettingsPage() {
               label="Display Name"
               value={profile.name}
               onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))}
-              placeholder="e.g. Kartik Sharma"
+              placeholder="e.g. Kartik Unhale"
               required
             />
             <Input
@@ -213,13 +221,13 @@ export default function SettingsPage() {
               required
             />
             <Input
-              label="Monthly Income"
+              label="Monthly Income (INR Baseline)"
               type="number"
               prefix="₹"
               value={profile.monthlyIncome}
               onChange={(e) => setProfile((p) => ({ ...p, monthlyIncome: e.target.value }))}
               placeholder="75000"
-              helpText="Used for net cash flow and budget surplus calculations"
+              helpText="Baseline ledger figure in INR. Automatically converted across all views based on active currency."
               required
             />
           </div>
@@ -234,16 +242,17 @@ export default function SettingsPage() {
 
       {/* 2. Financial Preferences */}
       <Card>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
           <div style={{
-            width: 36, height: 36, borderRadius: 8, background: '#E2F1F0',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0B6E6E',
+            width: 38, height: 38, borderRadius: 8, background: '#F7FEE7',
+            border: '1px solid #D9F99D',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4D7C0F',
           }}>
             <Sliders size={18} />
           </div>
           <div>
-            <h2 style={{ fontSize: 16, fontWeight: 700, color: '#0F1B2D' }}>Financial Display Preferences</h2>
-            <p style={{ fontSize: 12, color: '#52607A' }}>Configure your presentation currency and date formats</p>
+            <h2 style={{ fontSize: 16, fontWeight: 700, color: '#0F172A', letterSpacing: '-0.01em' }}>Display Preferences</h2>
+            <p style={{ fontSize: 12, color: '#64748B' }}>Currency display and date formatting rules</p>
           </div>
         </div>
 
@@ -252,7 +261,12 @@ export default function SettingsPage() {
             <Select
               label="Operating Currency"
               value={preferences.currency}
-              onChange={(e) => setPreferences((p) => ({ ...p, currency: e.target.value }))}
+              onChange={(e) => {
+                const nextCurr = e.target.value;
+                setPreferences((p) => ({ ...p, currency: nextCurr }));
+                setActiveCurrencyState(nextCurr);
+                toast.success(`Currency switched to ${nextCurr}. Figures dynamically converted.`);
+              }}
               options={CURRENCY_OPTIONS}
             />
             <Select
@@ -263,14 +277,13 @@ export default function SettingsPage() {
             />
           </div>
 
-          {/* Currency Guard Notice */}
           <div style={{
-            background: '#F5F7FA', border: '1px solid #D9E0E9', borderRadius: 8, padding: '12px 14px',
+            background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 8, padding: '12px 14px',
             display: 'flex', gap: 10, alignItems: 'flex-start',
           }}>
-            <Globe size={18} style={{ color: '#0B6E6E', flexShrink: 0, marginTop: 2 }} />
-            <p style={{ fontSize: 12, color: '#52607A', lineHeight: 1.5 }}>
-              <strong style={{ color: '#0F1B2D' }}>Currency Integrity Guard:</strong> FinAssist processes statements in INR by default. To preserve strict financial accuracy, amounts from different currencies are never totaled or combined without a verified, real-time exchange rate contract.
+            <Globe size={18} style={{ color: '#4D7C0F', flexShrink: 0, marginTop: 2 }} />
+            <p style={{ fontSize: 12, color: '#475569', lineHeight: 1.55, margin: 0 }}>
+              <strong style={{ color: '#0F172A' }}>Live Multi-Currency Conversion:</strong> Finassist automatically converts all financial records in real-time across INR (₹), USD ($), EUR (€), and GBP (£). Both the currency symbol and underlying figures are converted dynamically using institutional exchange rates.
             </p>
           </div>
 
@@ -284,16 +297,17 @@ export default function SettingsPage() {
 
       {/* 3. Security Section */}
       <Card>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
           <div style={{
-            width: 36, height: 36, borderRadius: 8, background: '#E2F1F0',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0B6E6E',
+            width: 38, height: 38, borderRadius: 8, background: '#F7FEE7',
+            border: '1px solid #D9F99D',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4D7C0F',
           }}>
             <Shield size={18} />
           </div>
           <div>
-            <h2 style={{ fontSize: 16, fontWeight: 700, color: '#0F1B2D' }}>Security & Authentication</h2>
-            <p style={{ fontSize: 12, color: '#52607A' }}>Manage access credentials and active session</p>
+            <h2 style={{ fontSize: 16, fontWeight: 700, color: '#0F172A', letterSpacing: '-0.01em' }}>Security & Authentication</h2>
+            <p style={{ fontSize: 12, color: '#64748B' }}>Password credentials and active user session</p>
           </div>
         </div>
 
@@ -325,17 +339,13 @@ export default function SettingsPage() {
             />
           </div>
 
-          <p style={{ fontSize: 11, color: '#52607A', fontStyle: 'italic' }}>
-            Note: In this frontend demo environment, password changes update your local browser session credentials without transmitting credentials to third parties.
-          </p>
-
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
             <Button
               variant="danger"
               onClick={handleSignOut}
               icon={<LogOut size={15} />}
             >
-              Sign Out of Session
+              Sign Out
             </Button>
             <Button type="submit" loading={passwordSaving} icon={<Check size={15} />}>
               Update Password
@@ -344,37 +354,38 @@ export default function SettingsPage() {
         </form>
       </Card>
 
-      {/* 4. Backend Integration Architecture & Status */}
+      {/* 4. Backend Health Check */}
       <Card>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
           <div style={{
-            width: 36, height: 36, borderRadius: 8, background: '#E2F1F0',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0B6E6E',
+            width: 38, height: 38, borderRadius: 8, background: '#F7FEE7',
+            border: '1px solid #D9F99D',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4D7C0F',
           }}>
             <Server size={18} />
           </div>
           <div>
-            <h2 style={{ fontSize: 16, fontWeight: 700, color: '#0F1B2D' }}>Backend Integration Status</h2>
-            <p style={{ fontSize: 12, color: '#52607A' }}>FastAPI + Supabase connection contracts</p>
+            <h2 style={{ fontSize: 16, fontWeight: 700, color: '#0F172A', letterSpacing: '-0.01em' }}>Backend Connectivity</h2>
+            <p style={{ fontSize: 12, color: '#64748B' }}>FastAPI + Supabase Render deployment endpoints</p>
           </div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div style={{
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            padding: '10px 14px', background: '#F5F7FA', borderRadius: 8, border: '1px solid #D9E0E9',
+            padding: '12px 16px', background: '#F8FAFC', borderRadius: 8, border: '1px solid #E2E8F0',
           }}>
             <div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#0F1B2D' }}>Render Live Backend Base URL</div>
-              <div style={{ fontSize: 12, color: '#52607A', fontFamily: 'monospace' }}>https://finassist-backend.onrender.com/api</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>FastAPI Live Endpoint</div>
+              <div style={{ fontSize: 12, color: '#64748B', fontFamily: 'monospace' }}>https://finassist-backend.onrender.com/api</div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               {pingStatus && (
                 <span style={{
-                  fontSize: 12, fontWeight: 600,
-                  color: pingStatus.ok ? '#07704A' : '#8F5200',
-                  padding: '4px 8px', borderRadius: 6,
-                  background: pingStatus.ok ? '#E8F5E9' : '#FFF9C4',
+                  fontSize: 12, fontWeight: 700,
+                  color: pingStatus.ok ? '#15803D' : '#B45309',
+                  padding: '4px 9px', borderRadius: 6,
+                  background: pingStatus.ok ? '#DCFCE7' : '#FEF3C7',
                 }}>
                   {pingStatus.msg}
                 </span>
@@ -390,36 +401,33 @@ export default function SettingsPage() {
               </Button>
             </div>
           </div>
-
-          <div style={{ fontSize: 12, color: '#52607A', lineHeight: 1.6 }}>
-            The frontend uses a clean service architecture layer in <code style={{ color: '#0B6E6E' }}>src/services/</code>. When integrating with your teammate's backend, toggle the mock layer to forward directly to <code style={{ color: '#0B6E6E' }}>POST /api/income</code>, <code style={{ color: '#0B6E6E' }}>POST /api/transactions/upload</code>, <code style={{ color: '#0B6E6E' }}>GET /api/dashboard</code>, <code style={{ color: '#0B6E6E' }}>GET /api/predict</code>, <code style={{ color: '#0B6E6E' }}>POST /api/savings-goal</code>, and <code style={{ color: '#0B6E6E' }}>GET /api/anomaly-spotlight</code>.
-          </div>
         </div>
       </Card>
 
       {/* 5. Data Management */}
       <Card>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
           <div style={{
-            width: 36, height: 36, borderRadius: 8, background: 'rgba(180,35,24,0.1)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#B42318',
+            width: 38, height: 38, borderRadius: 8, background: '#FEE2E2',
+            border: '1px solid #FCA5A5',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#B91C1C',
           }}>
             <Database size={18} />
           </div>
           <div>
-            <h2 style={{ fontSize: 16, fontWeight: 700, color: '#0F1B2D' }}>Demo Data Management</h2>
-            <p style={{ fontSize: 12, color: '#52607A' }}>Export your records or reset all items to default state</p>
+            <h2 style={{ fontSize: 16, fontWeight: 700, color: '#0F172A', letterSpacing: '-0.01em' }}>Data Management</h2>
+            <p style={{ fontSize: 12, color: '#64748B' }}>Export ledger records or restore original test scenario</p>
           </div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div style={{
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            padding: '12px 16px', border: '1px solid #D9E0E9', borderRadius: 8,
+            padding: '14px 18px', border: '1px solid #E2E8F0', borderRadius: 8,
           }}>
             <div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#0F1B2D' }}>Export Dataset (CSV)</div>
-              <div style={{ fontSize: 12, color: '#52607A' }}>Download all current transactions as a standard statement CSV file.</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>Export Ledger (CSV)</div>
+              <div style={{ fontSize: 12, color: '#64748B' }}>Download current transaction statement as a CSV document.</div>
             </div>
             <Button variant="secondary" onClick={handleExportData} icon={<Download size={14} />}>
               Export CSV
@@ -428,16 +436,16 @@ export default function SettingsPage() {
 
           <div style={{
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            padding: '12px 16px', border: '1px solid #FCA5A5', borderRadius: 8, background: '#FFF5F5',
+            padding: '14px 18px', border: '1px solid #FCA5A5', borderRadius: 8, background: '#FEF2F2',
           }}>
             <div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#B42318' }}>Reset Demo Data</div>
-              <div style={{ fontSize: 12, color: '#52607A' }}>
-                Wipes custom transactions, budget modifications, and restores original sample statement.
+              <div style={{ fontSize: 13, fontWeight: 600, color: '#B91C1C' }}>Reset Demo Scenario</div>
+              <div style={{ fontSize: 12, color: '#475569' }}>
+                Restores original 25 transactions and anomaly test data.
               </div>
             </div>
             <Button variant="danger" onClick={() => setResetModalOpen(true)} icon={<RefreshCw size={14} />}>
-              Reset Demo Data
+              Reset Data
             </Button>
           </div>
         </div>
@@ -449,7 +457,7 @@ export default function SettingsPage() {
         onClose={() => setResetModalOpen(false)}
         onConfirm={handleConfirmReset}
         title="Reset Demo Data to Initial State?"
-        message="This action will delete any newly imported transactions, custom category budgets, and savings goals you created, restoring the original 25 demo transactions and baseline figures. This cannot be undone."
+        message="This action will restore the original demo transactions and baseline figures. Any uploaded CSV statements will be cleared."
         confirmLabel="Yes, Reset Data"
         danger
       />

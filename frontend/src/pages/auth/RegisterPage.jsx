@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
+import BrandLogo from '../../components/common/BrandLogo';
 import { register } from '../../data/mockData';
 
 function getPasswordStrength(password) {
@@ -15,7 +16,7 @@ function getPasswordStrength(password) {
 }
 
 const strengthLabels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
-const strengthColors = ['', '#B42318', '#8F5200', '#F59E0B', '#07704A'];
+const strengthColors = ['', '#B91C1C', '#B45309', '#D97706', '#15803D'];
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -41,7 +42,7 @@ export default function RegisterPage() {
     e.preventDefault();
     if (!validate()) return;
     setLoading(true);
-    await new Promise(r => setTimeout(r, 600));
+    await new Promise(r => setTimeout(r, 500));
     register(form.name.trim(), form.email.trim(), form.password);
     setLoading(false);
     navigate('/onboarding');
@@ -49,55 +50,112 @@ export default function RegisterPage() {
 
   return (
     <div style={{
-      minHeight: '100vh', background: '#F5F7FA',
-      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16,
+      minHeight: '100vh',
+      background: '#F8FAFC',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 16,
+      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", sans-serif',
     }}>
       <div style={{
-        background: '#fff', borderRadius: 16, padding: '48px 40px',
-        width: '100%', maxWidth: 440,
-        boxShadow: '0 8px 40px rgba(15,27,45,0.12)',
+        background: '#FFFFFF',
+        borderRadius: 16,
+        padding: '44px 38px',
+        width: '100%',
+        maxWidth: 440,
+        boxShadow: '0 10px 25px -5px rgba(15,23,42,0.08), 0 1px 3px rgba(15,23,42,0.05)',
+        border: '1px solid #E2E8F0',
       }}>
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <div style={{
-            width: 48, height: 48, borderRadius: 12, background: '#0B6E6E',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 24, fontWeight: 900, color: '#fff', margin: '0 auto 12px',
-          }}>F</div>
-          <h3 style={{ fontSize: 22, fontWeight: 800, color: '#0F1B2D', marginBottom: 4 }}>Create your account</h3>
-          <p style={{ color: '#52607A', fontSize: 13 }}>Start managing your finances smarter</p>
+        <div style={{ textAlign: 'center', marginBottom: 28 }}>
+          <div style={{ display: 'inline-flex', justifyContent: 'center', marginBottom: 12 }}>
+            <BrandLogo size={42} showText={false} />
+          </div>
+          <h2 style={{ fontSize: 22, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.025em', marginBottom: 4 }}>
+            Create your account
+          </h2>
+          <p style={{ color: '#64748B', fontSize: 13 }}>
+            Start managing your finances with explainable AI
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <Input label="Full Name" value={form.name} onChange={set('name')} placeholder="Kartik Sharma" required error={errors.name} />
-          <Input label="Email address" type="email" value={form.email} onChange={set('email')} placeholder="you@example.com" required error={errors.email} />
-          <div>
-            <Input label="Password" type="password" value={form.password} onChange={set('password')} placeholder="Min. 6 characters" required error={errors.password} />
-            {form.password && (
-              <div style={{ marginTop: 6 }}>
-                <div style={{ display: 'flex', gap: 4, marginBottom: 4 }}>
-                  {[1,2,3,4].map(i => (
-                    <div key={i} style={{
-                      flex: 1, height: 3, borderRadius: 2,
-                      background: i <= strength ? strengthColors[strength] : '#D9E0E9',
+          <Input
+            label="Full Name"
+            value={form.name}
+            onChange={set('name')}
+            placeholder="Kartik Unhale"
+            error={errors.name}
+            required
+          />
+          <Input
+            label="Email Address"
+            type="email"
+            value={form.email}
+            onChange={set('email')}
+            placeholder="kartik@example.com"
+            error={errors.email}
+            required
+          />
+          <Input
+            label="Password"
+            type="password"
+            value={form.password}
+            onChange={set('password')}
+            placeholder="At least 6 characters"
+            error={errors.password}
+            required
+          />
+
+          {/* Password strength meter */}
+          {form.password && (
+            <div>
+              <div style={{ display: 'flex', gap: 4, marginBottom: 4 }}>
+                {[1, 2, 3, 4].map(i => (
+                  <div
+                    key={i}
+                    style={{
+                      flex: 1,
+                      height: 4,
+                      borderRadius: 2,
+                      background: i <= strength ? strengthColors[strength] : '#E2E8F0',
                       transition: 'background 0.2s',
-                    }} />
-                  ))}
-                </div>
-                <span style={{ fontSize: 11, color: strengthColors[strength], fontWeight: 600 }}>
-                  {strengthLabels[strength]}
-                </span>
+                    }}
+                  />
+                ))}
               </div>
-            )}
-          </div>
-          <Input label="Confirm Password" type="password" value={form.confirm} onChange={set('confirm')} placeholder="Repeat your password" required error={errors.confirm} />
-          <Button type="submit" fullWidth size="lg" loading={loading} style={{ marginTop: 4 }}>
+              <span style={{ fontSize: 11, fontWeight: 600, color: strengthColors[strength] }}>
+                {strengthLabels[strength]}
+              </span>
+            </div>
+          )}
+
+          <Input
+            label="Confirm Password"
+            type="password"
+            value={form.confirm}
+            onChange={set('confirm')}
+            placeholder="Repeat your password"
+            error={errors.confirm}
+            required
+          />
+
+          <Button
+            type="submit"
+            fullWidth
+            size="md"
+            loading={loading}
+            style={{ marginTop: 8 }}
+          >
             Create Account
           </Button>
         </form>
 
-        <p style={{ textAlign: 'center', fontSize: 13, color: '#52607A', marginTop: 20 }}>
+        <p style={{ textAlign: 'center', fontSize: 13, color: '#64748B', marginTop: 20 }}>
           Already have an account?{' '}
-          <Link to="/login" style={{ color: '#0B6E6E', fontWeight: 600 }}>Sign in</Link>
+          <Link to="/login" style={{ color: '#4D7C0F', fontWeight: 700, textDecoration: 'none' }}>
+            Sign in
+          </Link>
         </p>
       </div>
     </div>
