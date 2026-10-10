@@ -285,6 +285,16 @@ export default function AICoachPage() {
   // --- Gemini Model Selector State ---
   const [selectedModel, setSelectedModel] = useState('gemini-3.8-flash');
 
+  // --- Custom Gemini API Key Modal State ---
+  const [showKeyModal, setShowKeyModal] = useState(false);
+  const [customKeyInput, setCustomKeyInput] = useState(() => {
+    try {
+      return localStorage.getItem('finassist_gemini_key') || '';
+    } catch (e) {
+      return '';
+    }
+  });
+
   const [thinkingTime, setThinkingTime] = useState(0);
 
   useEffect(() => {
