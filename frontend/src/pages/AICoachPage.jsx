@@ -139,6 +139,14 @@ export default function AICoachPage() {
   });
 
   const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [showKeyModal, setShowKeyModal] = useState(false);
+  const [customKeyInput, setCustomKeyInput] = useState(() => {
+    try {
+      return localStorage.getItem('finassist_gemini_key') || '';
+    } catch (e) {
+      return '';
+    }
+  });
 
   // Active chat session messages
   const activeSession = chatSessions.find(s => s.id === currentSessionId) || chatSessions[0] || {
